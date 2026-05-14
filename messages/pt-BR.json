@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "home": "Início",
+    "dashboard": "Painel",
+    "about": "Sobre",
+    "database": "Base de Dados",
+    "documentation": "Documentação"
+  },
+  "home": {
+    "hero_title": "Vigilância Viral Global",
+    "hero_subtitle": "O InfectoNET acompanha a epidemiologia genômica de vírus emergentes e reemergentes em todo o mundo — fornecendo dados abertos e FAIR para pesquisadores e profissionais de saúde pública.",
+    "explore_button": "Explorar Vírus",
+    "about_button": "Sobre o InfectoNET",
+    "groups_title": "Navegar por Grupo de Vírus",
+    "groups_subtitle": "Selecione um grupo de vírus para explorar dados de vigilância genômica, distribuição geográfica e tendências de variantes.",
+    "stats_sequences": "Sequências",
+    "stats_countries": "Países",
+    "stats_viruses": "Vírus",
+    "stats_last_updated": "Última atualização",
+    "featured_title": "Atualizados Recentemente"
+  },
+  "groups": {
+    "respiratory": "Respiratórios",
+    "respiratory_desc": "Vírus transmitidos principalmente por gotículas e aerossóis respiratórios",
+    "vector_borne": "Transmitidos por Vetores",
+    "vector_borne_desc": "Vírus transmitidos por vetores artrópodes como mosquitos e carrapatos",
+    "haemorrhagic": "Febre Hemorrágica Viral",
+    "haemorrhagic_desc": "Infecções virais graves com manifestações hemorrágicas",
+    "zoonotic": "Zoonóticos e Neurológicos",
+    "zoonotic_desc": "Vírus com reservatórios animais que causam doença neurológica ou sistêmica",
+    "childhood": "Infantis e Imunopreveníveis",
+    "childhood_desc": "Vírus para os quais existem vacinas eficazes ou que afetam principalmente crianças",
+    "other": "Outros & Emergentes",
+    "retroviral": "Retrovírus e Endógenos",
+    "retroviral_desc": "Retrovírus de RNA incluindo HIV, animais e retrovírus endógenos humanos",
+    "gastrointestinal": "Gastrointestinal",
+    "gastrointestinal_desc": "Vírus causadores de infecção entérica, hepatite ou doença gastrointestinal",
+    "other_desc": "Patógenos emergentes prioritários e candidatos à Doença X da OMS"
+  },
+  "dashboard": {
+    "title": "Painel",
+    "genome": "Genoma",
+    "family": "Família",
+    "map_title": "Distribuição Geográfica",
+    "map_samples": "Nº de Amostras",
+    "map_genotype": "Prevalência de Genótipos",
+    "trends_title": "Tendências de Variantes e Clados",
+    "timeline_title": "Amostras ao Longo do Tempo",
+    "select_genotype": "Selecionar genótipo",
+    "select_year": "Selecionar ano",
+    "no_data": "Sem dados disponíveis para este organismo",
+    "loading": "Carregando dados…",
+    "samples": "amostras",
+    "countries": "países",
+    "genotypes": "genótipos / clados"
+  },
+  "about": {
+    "title": "Sobre o InfectoNET",
+    "mission_title": "Nossa Missão",
+    "mission_text": "O InfectoNET é uma plataforma global de vigilância de acesso aberto para epidemiologia genômica viral. Agregamos dados de sequências virais disponíveis publicamente para rastrear o surgimento e a propagação de patógenos em todo o mundo.",
+    "fair_title": "Princípios FAIR",
+    "fair_findable": "Localizável — Cada conjunto de dados tem uma URL canônica e persistente.",
+    "fair_accessible": "Acessível — Dados disponíveis gratuitamente via API pública.",
+    "fair_interoperable": "Interoperável — Exportação em formatos JSON, CSV ou FASTA.",
+    "fair_reusable": "Reutilizável — Todos os dados possuem licença aberta com metadados completos de proveniência.",
+    "team_title": "Equipe",
+    "contact_title": "Contato",
+    "data_title": "Fontes de Dados",
+    "data_text": "Os dados de sequência são provenientes do NCBI GenBank, GISAID e Nextstrain, processados por meio de pipelines padronizados de controle de qualidade e enriquecimento de metadados."
+  },
+  "footer": {
+    "tagline": "Vigilância genômica viral aberta para a saúde global.",
+    "links_title": "Links",
+    "legal_title": "Legal",
+    "privacy": "Política de Privacidade",
+    "terms": "Termos de Uso",
+    "license": "Licença de Dados",
+    "powered_by": "Desenvolvido por"
+  }
+}

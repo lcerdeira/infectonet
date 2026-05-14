@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- Pleomorphic enveloped particle -->
+  <ellipse cx="80" cy="56" rx="42" ry="34" fill="#3B82F618" stroke="#3B82F6" stroke-width="2"/>
+  <!-- F protein spikes (fusion) -->
+  <line x1="80" y1="22" x2="80" y2="11" stroke="#3B82F6" stroke-width="2"/>
+  <path d="M76 11 L80 7 L84 11" stroke="#3B82F6" stroke-width="1.5" fill="#3B82F6" fill-opacity="0.3"/>
+  <line x1="104" y1="33" x2="111" y2="25" stroke="#3B82F6" stroke-width="2"/>
+  <path d="M108 25 L111 21 L115 25" stroke="#3B82F6" stroke-width="1.5" fill="#3B82F6" fill-opacity="0.3"/>
+  <line x1="116" y1="57" x2="127" y2="57" stroke="#3B82F6" stroke-width="2"/>
+  <path d="M127 53 L131 57 L127 61" stroke="#3B82F6" stroke-width="1.5" fill="#3B82F6" fill-opacity="0.3"/>
+  <line x1="56" y1="33" x2="49" y2="25" stroke="#3B82F6" stroke-width="2"/>
+  <path d="M52 25 L49 21 L45 25" stroke="#3B82F6" stroke-width="1.5" fill="#3B82F6" fill-opacity="0.3"/>
+  <line x1="44" y1="57" x2="33" y2="57" stroke="#3B82F6" stroke-width="2"/>
+  <!-- Helical nucleocapsid -->
+  <path d="M58 56 Q65 46 72 56 Q79 66 86 56 Q93 46 100 56" stroke="#3B82F6" stroke-width="1.5" fill="none" opacity="0.7"/>
+  <!-- Label -->
+  <text x="80" y="110" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#3B82F6" text-anchor="middle">PIV</text>
+</svg>

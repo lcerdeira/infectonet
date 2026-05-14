@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- Poliovirus - small icosahedral, 4 capsid proteins (VP1-4) -->
+  <circle cx="80" cy="56" r="30" fill="#8B5CF618" stroke="#8B5CF6" stroke-width="2"/>
+  <!-- Triangulated surface with VP1 mesas -->
+  <polygon points="80,26 106,44 106,68 80,86 54,68 54,44" stroke="#8B5CF6" stroke-width="1.5" fill="none"/>
+  <!-- VP1 mesa protrusions at 5-fold axes -->
+  <circle cx="80" cy="26" r="5" fill="#8B5CF630" stroke="#8B5CF6" stroke-width="1.5"/>
+  <circle cx="106" cy="44" r="5" fill="#8B5CF630" stroke="#8B5CF6" stroke-width="1.5"/>
+  <circle cx="106" cy="68" r="5" fill="#8B5CF630" stroke="#8B5CF6" stroke-width="1.5"/>
+  <circle cx="80" cy="86" r="5" fill="#8B5CF630" stroke="#8B5CF6" stroke-width="1.5"/>
+  <circle cx="54" cy="68" r="5" fill="#8B5CF630" stroke="#8B5CF6" stroke-width="1.5"/>
+  <circle cx="54" cy="44" r="5" fill="#8B5CF630" stroke="#8B5CF6" stroke-width="1.5"/>
+  <!-- Canyon ring (receptor binding site) -->
+  <circle cx="80" cy="56" r="12" stroke="#8B5CF6" stroke-width="1" stroke-dasharray="2 2" fill="none"/>
+  <!-- Label -->
+  <text x="80" y="110" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#8B5CF6" text-anchor="middle">Poliovirus</text>
+</svg>

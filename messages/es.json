@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "about": "Acerca de",
+    "database": "Base de datos",
+    "documentation": "Documentación"
+  },
+  "home": {
+    "hero_title": "Vigilancia Viral Global",
+    "hero_subtitle": "InfectoNET rastrea la epidemiología genómica de virus emergentes y reemergentes en todo el mundo — proporcionando datos abiertos y FAIR para investigadores y profesionales de salud pública.",
+    "explore_button": "Explorar Virus",
+    "about_button": "Acerca de InfectoNET",
+    "groups_title": "Explorar por grupo de virus",
+    "groups_subtitle": "Seleccione un grupo de virus para explorar datos de vigilancia genómica, distribución geográfica y tendencias de variantes.",
+    "stats_sequences": "Secuencias",
+    "stats_countries": "Países",
+    "stats_viruses": "Virus",
+    "stats_last_updated": "Última actualización",
+    "featured_title": "Actualizados recientemente"
+  },
+  "groups": {
+    "respiratory": "Respiratorios",
+    "respiratory_desc": "Virus transmitidos principalmente por gotículas y aerosoles respiratorios",
+    "vector_borne": "Transmitidos por vectores",
+    "vector_borne_desc": "Virus transmitidos por vectores artrópodos como mosquitos y garrapatas",
+    "haemorrhagic": "Fiebre Hemorrágica Viral",
+    "haemorrhagic_desc": "Infecciones virales graves que causan manifestaciones hemorrágicas",
+    "zoonotic": "Zoonóticos y Neurológicos",
+    "zoonotic_desc": "Virus con reservorios animales que causan enfermedades neurológicas o sistémicas",
+    "childhood": "Infantiles e inmunoprevenibles",
+    "childhood_desc": "Virus para los que existen vacunas eficaces o que afectan principalmente a niños",
+    "other": "Otros & Emergentes",
+    "retroviral": "Retrovirus y Endógenos",
+    "retroviral_desc": "Retrovirus ARN incluyendo VIH, retrovirus animales y endógenos humanos",
+    "gastrointestinal": "Gastrointestinal",
+    "gastrointestinal_desc": "Virus que causan infección entérica, hepatitis o enfermedad gastrointestinal",
+    "other_desc": "Patógenos emergentes prioritarios y candidatos a la Enfermedad X de la OMS"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "genome": "Genoma",
+    "family": "Familia",
+    "map_title": "Distribución geográfica",
+    "map_samples": "Nº de muestras",
+    "map_genotype": "Prevalencia de genotipos",
+    "trends_title": "Tendencias de variantes y clados",
+    "timeline_title": "Muestras a lo largo del tiempo",
+    "select_genotype": "Seleccionar genotipo",
+    "select_year": "Seleccionar año",
+    "no_data": "No hay datos disponibles para este organismo",
+    "loading": "Cargando datos…",
+    "samples": "muestras",
+    "countries": "países",
+    "genotypes": "genotipos / clados"
+  },
+  "about": {
+    "title": "Acerca de InfectoNET",
+    "mission_title": "Nuestra misión",
+    "mission_text": "InfectoNET es una plataforma global de vigilancia de acceso abierto para la epidemiología genómica viral. Agregamos datos de secuencias virales disponibles públicamente para rastrear la emergencia y propagación de patógenos en todo el mundo.",
+    "fair_title": "Principios FAIR",
+    "fair_findable": "Localizable — Cada conjunto de datos tiene una URL canónica y persistente.",
+    "fair_accessible": "Accesible — Datos descargables gratuitamente a través de nuestra API pública.",
+    "fair_interoperable": "Interoperable — Exportación en formatos JSON, CSV o FASTA.",
+    "fair_reusable": "Reutilizable — Todos los datos tienen licencia abierta con metadatos completos de procedencia.",
+    "team_title": "Equipo",
+    "contact_title": "Contacto",
+    "data_title": "Fuentes de datos",
+    "data_text": "Los datos de secuencias provienen de NCBI GenBank, GISAID y Nextstrain, procesados mediante pipelines estandarizados de control de calidad y enriquecimiento de metadatos."
+  },
+  "footer": {
+    "tagline": "Vigilancia genómica viral abierta para la salud global.",
+    "links_title": "Enlaces",
+    "legal_title": "Legal",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de uso",
+    "license": "Licencia de datos",
+    "powered_by": "Desarrollado por"
+  }
+}

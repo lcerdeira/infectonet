@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- HCV - flavivirus family, enveloped with E1/E2 glycoproteins -->
+  <circle cx="80" cy="56" r="32" fill="#F9741618" stroke="#F97316" stroke-width="2"/>
+  <!-- E1/E2 heterodimer spikes -->
+  <line x1="80" y1="24" x2="80" y2="14" stroke="#F97316" stroke-width="2"/>
+  <ellipse cx="80" cy="12" rx="4" ry="3" fill="#F97316"/>
+  <line x1="105" y1="33" x2="112" y2="26" stroke="#F97316" stroke-width="2"/>
+  <ellipse cx="115" cy="23" rx="4" ry="3" fill="#F97316" transform="rotate(-45 115 23)"/>
+  <line x1="112" y1="58" x2="122" y2="58" stroke="#F97316" stroke-width="2"/>
+  <ellipse cx="124" cy="58" rx="4" ry="3" fill="#F97316"/>
+  <line x1="55" y1="33" x2="48" y2="26" stroke="#F97316" stroke-width="2"/>
+  <ellipse cx="45" cy="23" rx="4" ry="3" fill="#F97316" transform="rotate(45 45 23)"/>
+  <line x1="48" y1="58" x2="38" y2="58" stroke="#F97316" stroke-width="2"/>
+  <ellipse cx="36" cy="58" rx="4" ry="3" fill="#F97316"/>
+  <line x1="80" y1="88" x2="80" y2="98" stroke="#F97316" stroke-width="2"/>
+  <ellipse cx="80" cy="100" rx="4" ry="3" fill="#F97316"/>
+  <!-- Inner nucleocapsid / ssRNA core -->
+  <circle cx="80" cy="56" r="16" fill="#F9741625" stroke="#F97316" stroke-width="1"/>
+  <!-- ssRNA -->
+  <path d="M72 50 Q80 44 88 50 Q80 56 72 62 Q80 68 88 62" stroke="#F97316" stroke-width="1.2" fill="none" opacity="0.6"/>
+  <!-- Label -->
+  <text x="80" y="116" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#F97316" text-anchor="middle">HCV</text>
+</svg>

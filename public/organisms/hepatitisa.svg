@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- HAV - non-enveloped icosahedral, closely related to picornaviruses -->
+  <circle cx="80" cy="56" r="30" fill="#F9741618" stroke="#F97316" stroke-width="2"/>
+  <!-- Icosahedral outline -->
+  <polygon points="80,27 105,43 105,69 80,85 55,69 55,43" stroke="#F97316" stroke-width="1.3" fill="none" opacity="0.8"/>
+  <!-- Face shading -->
+  <polygon points="80,27 105,43 80,56" fill="#F9741622"/>
+  <polygon points="105,43 105,69 80,56" fill="#F9741618"/>
+  <polygon points="105,69 80,85 80,56" fill="#F9741622"/>
+  <polygon points="80,85 55,69 80,56" fill="#F9741618"/>
+  <polygon points="55,69 55,43 80,56" fill="#F9741622"/>
+  <polygon points="55,43 80,27 80,56" fill="#F9741618"/>
+  <!-- HAV vertices -->
+  <circle cx="80" cy="27" r="3.5" fill="#F97316"/>
+  <circle cx="105" cy="43" r="3.5" fill="#F97316"/>
+  <circle cx="105" cy="69" r="3.5" fill="#F97316"/>
+  <circle cx="80" cy="85" r="3.5" fill="#F97316"/>
+  <circle cx="55" cy="69" r="3.5" fill="#F97316"/>
+  <circle cx="55" cy="43" r="3.5" fill="#F97316"/>
+  <!-- Label -->
+  <text x="80" y="110" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#F97316" text-anchor="middle">HAV</text>
+</svg>
