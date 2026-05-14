@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "about": "About",
+    "database": "Database",
+    "documentation": "Documentation"
+  },
+  "home": {
+    "hero_title": "Global Infectious Disease Surveillance",
+    "hero_subtitle": "InfectoNET tracks genomic epidemiology of emerging and re-emerging pathogens worldwide — providing open, FAIR data for researchers and public health practitioners.",
+    "explore_button": "Explore Pathogens",
+    "about_button": "About InfectoNET",
+    "groups_title": "Browse by Pathogen Group",
+    "groups_subtitle": "Select a pathogen group to explore genomic surveillance data, geographic distribution, and variant trends.",
+    "stats_sequences": "Sequences",
+    "stats_countries": "Countries",
+    "stats_viruses": "Pathogens",
+    "stats_last_updated": "Last updated",
+    "featured_title": "Recently Updated"
+  },
+  "groups": {
+    "respiratory": "Respiratory",
+    "respiratory_desc": "Viruses primarily transmitted via respiratory droplets and aerosols",
+    "vector_borne": "Vector-borne",
+    "vector_borne_desc": "Viruses transmitted by arthropod vectors such as mosquitoes and ticks",
+    "haemorrhagic": "Viral Haemorrhagic Fever",
+    "haemorrhagic_desc": "Severe viral infections causing haemorrhagic manifestations",
+    "zoonotic": "Zoonotic & Neurological",
+    "zoonotic_desc": "Viruses with animal reservoirs causing neurological or systemic disease",
+    "childhood": "Childhood & Vaccine-preventable",
+    "childhood_desc": "Viruses for which effective vaccines exist or affect primarily children",
+    "other": "Other & Emerging",
+    "retroviral": "Retroviruses & Endogenous",
+    "retroviral_desc": "RNA retroviruses including HIV-related, animal, and human endogenous retroviruses",
+    "gastrointestinal": "Gastrointestinal",
+    "gastrointestinal_desc": "Viruses and bacteria causing enteric infection, hepatitis, or gastrointestinal disease",
+    "other_desc": "Priority emerging pathogens and WHO Disease X candidates"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "genome": "Genome",
+    "family": "Family",
+    "map_title": "Geographic Distribution",
+    "map_samples": "No. Samples",
+    "map_genotype": "Genotype prevalence",
+    "trends_title": "Variant & Clade Trends",
+    "timeline_title": "Samples over Time",
+    "select_genotype": "Select genotype",
+    "select_year": "Select year",
+    "no_data": "No data available for this organism",
+    "loading": "Loading data…",
+    "samples": "samples",
+    "countries": "countries",
+    "genotypes": "genotypes / clades"
+  },
+  "about": {
+    "title": "About InfectoNET",
+    "mission_title": "Our Mission",
+    "mission_text": "InfectoNET is an open-access global surveillance platform for infectious disease genomic epidemiology. We aggregate publicly available pathogen sequence data to track the emergence and spread of viruses and other pathogens worldwide.",
+    "fair_title": "FAIR Principles",
+    "fair_findable": "Findable — Every dataset has a canonical, persistent URL.",
+    "fair_accessible": "Accessible — Data is freely downloadable via our public API.",
+    "fair_interoperable": "Interoperable — Export in JSON, CSV, or FASTA formats.",
+    "fair_reusable": "Reusable — All data is openly licensed with full provenance metadata.",
+    "team_title": "Team",
+    "contact_title": "Contact",
+    "data_title": "Data Sources",
+    "data_text": "Sequence data is sourced from NCBI GenBank, GISAID, and Nextstrain, processed through standardised quality-control and metadata enrichment pipelines."
+  },
+  "footer": {
+    "tagline": "Open infectious disease genomic surveillance for global health.",
+    "links_title": "Links",
+    "legal_title": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "license": "Data License",
+    "powered_by": "Powered by"
+  }
+}

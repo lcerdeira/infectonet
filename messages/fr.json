@@ -1,0 +1,80 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "about": "À propos",
+    "database": "Base de données",
+    "documentation": "Documentation"
+  },
+  "home": {
+    "hero_title": "Surveillance Virale Mondiale",
+    "hero_subtitle": "InfectoNET suit l'épidémiologie génomique des virus émergents et ré-émergents dans le monde entier — fournissant des données ouvertes et FAIR pour les chercheurs et les professionnels de santé publique.",
+    "explore_button": "Explorer les virus",
+    "about_button": "À propos de InfectoNET",
+    "groups_title": "Parcourir par groupe de virus",
+    "groups_subtitle": "Sélectionnez un groupe de virus pour explorer les données de surveillance génomique, la distribution géographique et les tendances des variants.",
+    "stats_sequences": "Séquences",
+    "stats_countries": "Pays",
+    "stats_viruses": "Virus",
+    "stats_last_updated": "Dernière mise à jour",
+    "featured_title": "Récemment mis à jour"
+  },
+  "groups": {
+    "respiratory": "Respiratoires",
+    "respiratory_desc": "Virus transmis principalement par des gouttelettes et aérosols respiratoires",
+    "vector_borne": "Transmis par vecteur",
+    "vector_borne_desc": "Virus transmis par des vecteurs arthropodes tels que les moustiques et les tiques",
+    "haemorrhagic": "Fièvre hémorragique virale",
+    "haemorrhagic_desc": "Infections virales graves provoquant des manifestations hémorragiques",
+    "zoonotic": "Zoonotiques et neurologiques",
+    "zoonotic_desc": "Virus à réservoirs animaux causant des maladies neurologiques ou systémiques",
+    "childhood": "Pédiatriques et évitables par la vaccination",
+    "childhood_desc": "Virus pour lesquels des vaccins efficaces existent ou qui touchent principalement les enfants",
+    "other": "Autres & Émergents",
+    "retroviral": "Rétrovirus et Endogènes",
+    "retroviral_desc": "Rétrovirus ARN incluant le VIH, les rétrovirus animaux et endogènes humains",
+    "gastrointestinal": "Gastro-intestinal",
+    "gastrointestinal_desc": "Virus causant des infections entériques, des hépatites ou des maladies gastro-intestinales",
+    "other_desc": "Pathogènes émergents prioritaires et candidats à la Maladie X de l'OMS"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "genome": "Génome",
+    "family": "Famille",
+    "map_title": "Distribution géographique",
+    "map_samples": "Nb. d'échantillons",
+    "map_genotype": "Prévalence des génotypes",
+    "trends_title": "Tendances des variants et clades",
+    "timeline_title": "Échantillons dans le temps",
+    "select_genotype": "Sélectionner un génotype",
+    "select_year": "Sélectionner une année",
+    "no_data": "Aucune donnée disponible pour cet organisme",
+    "loading": "Chargement des données…",
+    "samples": "échantillons",
+    "countries": "pays",
+    "genotypes": "génotypes / clades"
+  },
+  "about": {
+    "title": "À propos de InfectoNET",
+    "mission_title": "Notre mission",
+    "mission_text": "InfectoNET est une plateforme mondiale de surveillance en libre accès pour l'épidémiologie génomique virale. Nous agrégeons des données de séquences virales disponibles publiquement pour suivre l'émergence et la propagation des pathogènes dans le monde entier.",
+    "fair_title": "Principes FAIR",
+    "fair_findable": "Trouvable — Chaque jeu de données possède une URL canonique et persistante.",
+    "fair_accessible": "Accessible — Données téléchargeables gratuitement via notre API publique.",
+    "fair_interoperable": "Interopérable — Export en formats JSON, CSV ou FASTA.",
+    "fair_reusable": "Réutilisable — Toutes les données sont sous licence ouverte avec des métadonnées de provenance complètes.",
+    "team_title": "Équipe",
+    "contact_title": "Contact",
+    "data_title": "Sources de données",
+    "data_text": "Les données de séquences proviennent de NCBI GenBank, GISAID et Nextstrain, traitées via des pipelines standardisés de contrôle qualité et d'enrichissement des métadonnées."
+  },
+  "footer": {
+    "tagline": "Surveillance génomique virale ouverte pour la santé mondiale.",
+    "links_title": "Liens",
+    "legal_title": "Juridique",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "license": "Licence des données",
+    "powered_by": "Propulsé par"
+  }
+}

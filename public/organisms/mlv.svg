@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- MLV - C-type gammaretrovirus (spherical with central core) -->
+  <circle cx="80" cy="56" r="34" fill="#EC489918" stroke="#EC4899" stroke-width="2"/>
+  <!-- Env spikes (gp70/p15E) -->
+  <line x1="80" y1="22" x2="80" y2="11" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="104" y1="30" x2="112" y2="22" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="115" y1="56" x2="126" y2="56" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="105" y1="80" x2="113" y2="88" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="56" y1="30" x2="48" y2="22" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="45" y1="56" x2="34" y2="56" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="55" y1="80" x2="47" y2="88" stroke="#EC4899" stroke-width="2.5"/>
+  <line x1="80" y1="90" x2="80" y2="101" stroke="#EC4899" stroke-width="2.5"/>
+  <!-- C-type central spherical nucleoid (not conical) -->
+  <circle cx="80" cy="56" r="15" fill="#EC489930" stroke="#EC4899" stroke-width="1.5"/>
+  <circle cx="80" cy="56" r="7" fill="#EC489955"/>
+  <!-- RNA genome -->
+  <path d="M76 53 Q80 49 84 53 Q80 57 76 53" stroke="white" stroke-width="1" fill="none" opacity="0.5"/>
+  <!-- Label -->
+  <text x="80" y="115" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#EC4899" text-anchor="middle">MLV</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- HSV - large enveloped herpesvirus with 4 layers -->
+  <!-- Envelope (outermost, irregular) -->
+  <ellipse cx="80" cy="56" rx="40" ry="36" fill="#6B728018" stroke="#6B7280" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <!-- Tegument (amorphous layer) -->
+  <circle cx="80" cy="56" r="27" fill="#6B728015" stroke="#6B7280" stroke-width="1.5" opacity="0.7"/>
+  <!-- Icosahedral capsid -->
+  <circle cx="80" cy="56" r="17" fill="#6B728020" stroke="#6B7280" stroke-width="2"/>
+  <polygon points="80,39 95,48 95,64 80,73 65,64 65,48" stroke="#6B7280" stroke-width="1.2" fill="none"/>
+  <!-- Glycoproteins on envelope -->
+  <circle cx="80" cy="20" r="2.5" fill="#6B7280"/>
+  <circle cx="112" cy="37" r="2.5" fill="#6B7280"/>
+  <circle cx="119" cy="58" r="2.5" fill="#6B7280"/>
+  <circle cx="110" cy="82" r="2.5" fill="#6B7280"/>
+  <circle cx="50" cy="37" r="2.5" fill="#6B7280"/>
+  <circle cx="41" cy="58" r="2.5" fill="#6B7280"/>
+  <circle cx="50" cy="82" r="2.5" fill="#6B7280"/>
+  <!-- dsDNA genome core -->
+  <circle cx="80" cy="56" r="7" fill="#6B728040"/>
+  <!-- Label -->
+  <text x="80" y="110" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#6B7280" text-anchor="middle">HSV</text>
+</svg>

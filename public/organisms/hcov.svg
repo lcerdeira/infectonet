@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- Coronavirus envelope -->
+  <circle cx="80" cy="56" r="33" fill="#3B82F618" stroke="#3B82F6" stroke-width="2"/>
+  <!-- Club-shaped S-protein spikes (coronavirus crown) -->
+  <line x1="80" y1="23" x2="80" y2="10" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="80" cy="8" rx="5" ry="3.5" fill="#3B82F6"/>
+  <line x1="100" y1="30" x2="109" y2="20" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="113" cy="17" rx="5" ry="3.5" fill="#3B82F6" transform="rotate(-40 113 17)"/>
+  <line x1="113" y1="55" x2="125" y2="52" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="128" cy="51" rx="5" ry="3.5" fill="#3B82F6" transform="rotate(-10 128 51)"/>
+  <line x1="60" y1="30" x2="51" y2="20" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="47" cy="17" rx="5" ry="3.5" fill="#3B82F6" transform="rotate(40 47 17)"/>
+  <line x1="47" y1="55" x2="35" y2="52" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="32" cy="51" rx="5" ry="3.5" fill="#3B82F6" transform="rotate(10 32 51)"/>
+  <line x1="90" y1="86" x2="96" y2="96" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="99" cy="99" rx="5" ry="3.5" fill="#3B82F6" transform="rotate(30 99 99)"/>
+  <line x1="70" y1="86" x2="64" y2="96" stroke="#3B82F6" stroke-width="2.5"/>
+  <ellipse cx="61" cy="99" rx="5" ry="3.5" fill="#3B82F6" transform="rotate(-30 61 99)"/>
+  <!-- Nucleocapsid -->
+  <circle cx="80" cy="56" r="16" fill="#3B82F625" stroke="#3B82F6" stroke-width="1"/>
+  <!-- Label -->
+  <text x="80" y="116" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#3B82F6" text-anchor="middle">HCoV</text>
+</svg>

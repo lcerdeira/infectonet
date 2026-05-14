@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" fill="none">
+  <!-- Small naked icosahedral capsid (HFMD-associated) -->
+  <circle cx="80" cy="56" r="30" fill="#8B5CF618" stroke="#8B5CF6" stroke-width="2"/>
+  <!-- Mesa / plateau surface features -->
+  <polygon points="80,28 104,42 104,70 80,84 56,70 56,42" stroke="#8B5CF6" stroke-width="1.2" fill="none"/>
+  <!-- Internal triangles -->
+  <line x1="80" y1="28" x2="80" y2="56" stroke="#8B5CF6" stroke-width="1" opacity="0.5"/>
+  <line x1="104" y1="42" x2="80" y2="56" stroke="#8B5CF6" stroke-width="1" opacity="0.5"/>
+  <line x1="104" y1="70" x2="80" y2="56" stroke="#8B5CF6" stroke-width="1" opacity="0.5"/>
+  <line x1="80" y1="84" x2="80" y2="56" stroke="#8B5CF6" stroke-width="1" opacity="0.5"/>
+  <line x1="56" y1="70" x2="80" y2="56" stroke="#8B5CF6" stroke-width="1" opacity="0.5"/>
+  <line x1="56" y1="42" x2="80" y2="56" stroke="#8B5CF6" stroke-width="1" opacity="0.5"/>
+  <!-- Vertices -->
+  <circle cx="80" cy="28" r="3.5" fill="#8B5CF6"/>
+  <circle cx="104" cy="42" r="3.5" fill="#8B5CF6"/>
+  <circle cx="104" cy="70" r="3.5" fill="#8B5CF6"/>
+  <circle cx="80" cy="84" r="3.5" fill="#8B5CF6"/>
+  <circle cx="56" cy="70" r="3.5" fill="#8B5CF6"/>
+  <circle cx="56" cy="42" r="3.5" fill="#8B5CF6"/>
+  <!-- Label -->
+  <text x="80" y="110" font-family="system-ui,sans-serif" font-size="11" font-weight="600" fill="#8B5CF6" text-anchor="middle">EV / HFMD</text>
+</svg>
