@@ -1,3 +1,11 @@
+![InfectoNET](./infectonet-logo.png)
+![Code Count](https://img.shields.io/github/languages/count/lcerdeira/infectonet)
+![Main Code Base](https://img.shields.io/github/languages/top/lcerdeira/infectonet)
+![Version](https://img.shields.io/badge/version-1.0-red)
+![License](https://img.shields.io/badge/license-GPLv3-blue)
+![Last Commit](https://img.shields.io/github/last-commit/lcerdeira/infectonet)
+<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19521044.svg)](https://doi.org/10.5281/zenodo.19521044) -->
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
