@@ -1,4 +1,5 @@
-![InfectoNET](./infectonet-logo.png)
+![InfectoNET](/public/infectonet-logo.png)
+
 ![Code Count](https://img.shields.io/github/languages/count/lcerdeira/infectonet)
 ![Main Code Base](https://img.shields.io/github/languages/top/lcerdeira/infectonet)
 ![Version](https://img.shields.io/badge/version-1.0-red)
