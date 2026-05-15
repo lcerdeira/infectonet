@@ -338,6 +338,84 @@ def classify_pango(pango: str) -> str:
     return pango
 
 
+# ── Nextstrain clade → variant group (for records without pango_lineage) ──────
+NEXTSTRAIN_CLADE_MAP = {
+    # Pre-VOC epoch clades
+    '19A': 'pre-VOC', '19B': 'pre-VOC',
+    '20A': 'pre-VOC', '20B': 'pre-VOC', '20C': 'pre-VOC',
+    '20D': 'pre-VOC', '20E (EU1)': 'pre-VOC', '20E': 'pre-VOC',
+    '20F': 'pre-VOC', '20G': 'pre-VOC',
+    # VOC epoch (from Nextstrain naming)
+    '20H (Beta, V2)': 'Beta (B.1.351)',
+    '20I (Alpha, V1)': 'Alpha (B.1.1.7)',
+    '20J (Gamma, V3)': 'Gamma (P.1)',
+    '21A (Delta)': 'Delta (B.1.617.2)',
+    '21C (Epsilon)': 'pre-VOC',
+    '21D (Eta)': 'pre-VOC',
+    '21E (Theta)': 'pre-VOC',
+    '21F (Iota)': 'pre-VOC',
+    '21G (Lambda)': 'Lambda (C.37)',
+    '21H (Mu)': 'Mu (B.1.621)',
+    '21I (Delta)': 'Delta (B.1.617.2)',
+    '21J (Delta)': 'Delta (B.1.617.2)',
+    '21K (Omicron)': 'Omicron BA.1',
+    '21L (Omicron)': 'Omicron BA.2',
+    '21M (Omicron)': 'Omicron BA.3',
+    '22A (Omicron)': 'Omicron BA.4',
+    '22B (Omicron)': 'Omicron BA.5',
+    '22C (Omicron)': 'Omicron BA.2',       # BA.2.12.1
+    '22D (Omicron)': 'Omicron BA.2.75',
+    '22E (Omicron)': 'Omicron BA.5 / BQ.1',
+    '22F (Omicron)': 'Omicron XBB',
+    '23A (Omicron)': 'Omicron XBB',        # XBB.1.5
+    '23B (Omicron)': 'Omicron XBB',        # XBB.1.16
+    '23C (Omicron)': 'Omicron BA.2.75',    # CH.1.1
+    '23D (Omicron)': 'Omicron XBB',        # XBB.1.9
+    '23E (Omicron)': 'Omicron XBB',        # XBB.2.3
+    '23F (Omicron)': 'Omicron XBB',        # EG.5
+    '23G (Omicron)': 'Omicron XBB',        # XBB.1.5.70
+    '23H (Omicron)': 'Omicron XBB',        # HK.3
+    '23I (Omicron)': 'Omicron JN.1 / BA.2.86',  # BA.2.86
+    '24A (Omicron)': 'Omicron JN.1 / BA.2.86',  # JN.1
+    '24B (Omicron)': 'Omicron KP / JN.1',       # JN.1.11.1
+    '24C (Omicron)': 'Omicron KP / JN.1',        # KP.1.1
+    '24D (Omicron)': 'Omicron KP / JN.1',        # KP.3.1.1
+    '24E (Omicron)': 'Omicron KP / JN.1',        # KP.3
+    '24F (Omicron)': 'Omicron KP / JN.1',        # LP.8
+    '25A (Omicron)': 'Omicron KP / JN.1',        # NB.1
+    '25B (Omicron)': 'Omicron KP / JN.1',        # LP.8.1
+    '25C (Omicron)': 'Omicron XEC',
+}
+
+# Also map partial Nextstrain clade names (those ending with variant label in parens)
+import re as _re
+_NEXTSTRAIN_DELTA = _re.compile(r'\bDelta\b', _re.I)
+_NEXTSTRAIN_ALPHA = _re.compile(r'\bAlpha\b', _re.I)
+_NEXTSTRAIN_BETA  = _re.compile(r'\bBeta\b',  _re.I)
+_NEXTSTRAIN_GAMMA = _re.compile(r'\bGamma\b', _re.I)
+_NEXTSTRAIN_OMICRON = _re.compile(r'\bOmicron\b', _re.I)
+
+
+def classify_nextstrain_clade(clade: str) -> str:
+    """Map a Nextstrain COVID-19 clade label to our display group."""
+    if not clade or clade.strip() in ('', 'Unknown', 'unknown', 'unassigned'):
+        return ''
+    clade = clade.strip()
+    # Exact match first
+    if clade in NEXTSTRAIN_CLADE_MAP:
+        return NEXTSTRAIN_CLADE_MAP[clade]
+    # Pattern match for Nextstrain epoch clades with WHO label in parens
+    if _NEXTSTRAIN_DELTA.search(clade):   return 'Delta (B.1.617.2)'
+    if _NEXTSTRAIN_ALPHA.search(clade):   return 'Alpha (B.1.1.7)'
+    if _NEXTSTRAIN_BETA.search(clade):    return 'Beta (B.1.351)'
+    if _NEXTSTRAIN_GAMMA.search(clade):   return 'Gamma (P.1)'
+    if _NEXTSTRAIN_OMICRON.search(clade): return 'Omicron'
+    # Numeric epoch clades without VOC label (19A, 20A, etc.) → pre-VOC
+    if _re.match(r'^1[89][A-Z]$', clade): return 'pre-VOC'
+    if _re.match(r'^2\d[A-Z]',    clade): return 'pre-VOC'
+    return ''
+
+
 KNOWN_GROUPS = {
     'Alpha (B.1.1.7)', 'Beta (B.1.351)', 'Gamma (P.1)', 'Lambda (C.37)', 'Mu (B.1.621)',
     'Delta (B.1.617.2)',
@@ -364,16 +442,29 @@ def run():
     for doc in col.find({}, no_cursor_timeout=True):
         pango   = str(doc.get('pango_lineage', '') or '').strip()
         who     = str(doc.get('who_label', '') or '').strip()
+        clade   = str(doc.get('clade', '') or '').strip()
         current = str(doc.get('GENOTYPE', '') or '').strip()
 
-        # Skip records that already have a properly classified group AND pango matches
-        if current in KNOWN_GROUPS:
+        # Skip records that already have a properly classified group,
+        # UNLESS they're 'Unknown' and have a clade we can map
+        if current in KNOWN_GROUPS and current != 'Unknown':
+            skipped += 1
+            continue
+        if current == 'Unknown' and not clade:
             skipped += 1
             continue
 
         group = classify_pango(pango)
 
-        # Fallback: use WHO label directly
+        # Fallback 1: Nextstrain clade — used when pango is absent or unclassifiable
+        # (classify_pango returns 'Unknown' for 'unclassifiable', which is truthy
+        #  but not a real classification, so we try the clade too)
+        if (not group or group == 'Unknown') and clade:
+            clade_group = classify_nextstrain_clade(clade)
+            if clade_group and clade_group != 'Unknown':
+                group = clade_group
+
+        # Fallback 2: WHO label directly
         if not group and who:
             group = who
 
