@@ -69,9 +69,7 @@ export default async function AboutPage() {
             <a href="https://www.amrnet.org" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
               AMRnet
             </a>{' '}
-            platform and was developed by{' '}
-            <strong>Dr. Louise Cerdeira</strong>{' '}
-            from the{' '}
+            platform from the{' '}
             <a href="https://www.lshtm.ac.uk" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
               London School of Hygiene &amp; Tropical Medicine (LSHTM)
             </a>.
