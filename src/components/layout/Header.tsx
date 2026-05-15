@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations, useLocale } from 'next-intl';
-import { Link, usePathname, useRouter } from '@/i18n/navigation';
+import { Link, usePathname, getPathname } from '@/i18n/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { Menu, X, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -18,9 +18,8 @@ export function Header() {
   const t = useTranslations('nav');
   const locale = useLocale();
   const pathname = usePathname();
-  const router = useRouter();
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
+  const [menuOpen, setMenuOpen]   = useState(false);
+  const [langOpen, setLangOpen]   = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -36,7 +35,11 @@ export function Header() {
 
   const switchLocale = (loc: Locale) => {
     setLangOpen(false);
-    router.replace(pathname, { locale: loc });
+    // Use a hard navigation so the server always re-renders the layout with
+    // the new locale's messages. router.replace() can be served from Next.js's
+    // RSC router cache, which keeps the old NextIntlClientProvider messages.
+    const target = getPathname({ href: pathname as `/${string}`, locale: loc });
+    window.location.href = target;
   };
 
   const navLinks = [
