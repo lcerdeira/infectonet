@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-VirNet sequence downloader v3
+infectonet sequence downloader v3
 ------------------------------
 Sources:
   • Nextstrain TSV  — covid19, rsv, mpox, measles
@@ -17,7 +17,7 @@ import requests
 from pymongo import MongoClient, UpdateOne
 
 MONGO_URI  = os.getenv("MONGODB_URI", "mongodb://localhost:27017")
-NCBI_EMAIL = os.getenv("NCBI_EMAIL", "virnet@example.com")
+NCBI_EMAIL = os.getenv("NCBI_EMAIL", "infectonet@example.com")
 BATCH = 500
 
 def log(msg):
