@@ -165,7 +165,7 @@ export function VirusDashboard({ virusId }: Props) {
       )}
 
       {/* ── Outbreak Monitor tab ── */}
-      {tab === 'outbreak' && <OutbreakMonitor virusId={virusId} />}
+      {tab === 'outbreak' && <OutbreakMonitor key={virusId} virusId={virusId} />}
 
       {/* ── Genomic Data tab (default) ── */}
       {tab === 'genomic' && (
@@ -197,14 +197,14 @@ export function VirusDashboard({ virusId }: Props) {
           {genotypeTrends.length > 0 && (
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('trends_title')}</h2>
-              <GenotypeTrends trends={genotypeTrends} />
+              <GenotypeTrends key={virusId} trends={genotypeTrends} />
             </div>
           )}
 
           {/* Timeline */}
           <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('timeline_title')}</h2>
-            <SampleTimeline records={data.records} />
+            <SampleTimeline key={virusId} records={data.records} />
           </div>
 
           {/* Auto-discovered additional insights */}

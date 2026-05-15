@@ -52,9 +52,14 @@ export function GenotypeTrends({ trends }: Props) {
     height: 380,
   };
 
+  // Key on the genotype signature so Plotly remounts (instead of patching) when
+  // the set of genotypes changes — prevents the _scrollZoom undefined error.
+  const plotKey = genotypes.join('|');
+
   return (
     <div className="w-full">
       <Plot
+        key={plotKey}
         data={traces}
         layout={layout}
         config={{ displayModeBar: false, responsive: true }}
