@@ -1,20 +1,31 @@
 'use client';
 
 /**
- * SafePlot — a thin Plotly wrapper that avoids the
- * "_scrollZoom undefined" error in react-plotly.js.
+ * SafePlot — wraps react-plotly.js to prevent the
+ * "_scrollZoom undefined" error.
  *
- * Root cause: react-plotly.js calls Plotly.update() during React re-renders.
- * When a key change unmounts the component simultaneously, _fullLayout is
- * already null when updateFx reads _fullLayout._scrollZoom → TypeError.
+ * Root cause: react-plotly.js calls Plotly.update() when props change.
+ * Plotly.update() internally calls Fx.update() which reads
+ * _fullLayout._scrollZoom. If the component is being unmounted at the
+ * same time (key change when switching viruses), _fullLayout is already
+ * null → TypeError.
  *
- * Fix: use Plotly.react() for every render (the idempotent API that does a
- * safe full re-render) + call Plotly.purge() on unmount with a mounted guard
- * so any in-flight async work is a no-op after the div is gone.
+ * Fix: pass `revision` prop to react-plotly.js.  When revision changes,
+ * the library routes through Plotly.react() instead of Plotly.update().
+ * Plotly.react() does not call Fx.update(), so _scrollZoom is never
+ * touched.  We increment revision on every data reference change so the
+ * safe path is always taken.
+ *
+ * We also set useResizeHandler={false} to prevent a second race condition
+ * where the window-resize handler fires after the plot has been purged.
  */
 
-import { useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
+import { useRef } from 'react';
 import type Plotly from 'plotly.js';
+
+// Load react-plotly.js client-side only (no SSR, avoids buffer/canvas issues)
+const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 interface Props {
   data:   Plotly.Data[];
@@ -23,49 +34,27 @@ interface Props {
   style?: React.CSSProperties;
 }
 
+let _rev = 0;
+
 export function SafePlot({ data, layout, config, style }: Props) {
-  const divRef    = useRef<HTMLDivElement>(null);
-  const mountedRef = useRef(true);
+  // Increment revision whenever the data array reference changes.
+  // This ensures react-plotly.js always calls Plotly.react() (safe)
+  // rather than Plotly.update() (unsafe during unmount).
+  const prevData = useRef<Plotly.Data[]>(data);
+  const revision  = useRef(++_rev);
+  if (prevData.current !== data) {
+    prevData.current = data;
+    revision.current = ++_rev;
+  }
 
-  useEffect(() => {
-    mountedRef.current = true;
-    const div = divRef.current;
-    if (!div) return;
-
-    // Dynamically import Plotly so it stays out of the SSR bundle.
-    let cancelled = false;
-    import('plotly.js').then((PlotlyModule) => {
-      if (cancelled || !mountedRef.current || !div) return;
-      const PlotlyLib = (PlotlyModule as unknown as { default: typeof Plotly }).default ?? PlotlyModule;
-      // Plotly.react() is safe to call both on first mount and subsequent
-      // updates — it re-uses the existing WebGL/SVG context when possible.
-      (PlotlyLib as typeof Plotly).react(div, data, layout, config ?? {}).catch(() => {
-        // Ignore errors that fire after unmount
-      });
-    });
-
-    return () => {
-      cancelled = true;
-      mountedRef.current = false;
-      if (!div) return;
-      // Purge in a microtask so any in-flight Plotly promise can resolve
-      // first (avoids "graph div is already being updated" warnings).
-      Promise.resolve().then(() => {
-        try {
-          // Plotly attaches itself to the div as ._fullData etc.
-          // purge() removes those references and the resize observer.
-          import('plotly.js').then((PlotlyModule) => {
-            const PlotlyLib = (PlotlyModule as unknown as { default: typeof Plotly }).default ?? PlotlyModule;
-            try { (PlotlyLib as typeof Plotly).purge(div); } catch { /* ignore */ }
-          });
-        } catch { /* ignore */ }
-      });
-    };
-    // Re-run whenever the data changes. stringify is intentionally avoided —
-    // the parent components already use key= to force a full remount when the
-    // virus changes, so update here only happens within the same virus.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, layout, config]);
-
-  return <div ref={divRef} style={{ width: '100%', ...style }} />;
+  return (
+    <Plot
+      data={data}
+      layout={layout}
+      config={config ?? { displayModeBar: false, responsive: true }}
+      style={{ width: '100%', ...style }}
+      revision={revision.current}
+      useResizeHandler={false}
+    />
+  );
 }
