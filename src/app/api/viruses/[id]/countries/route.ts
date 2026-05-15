@@ -83,6 +83,8 @@ export async function GET(
                       { $ne: ['$$this', ''] },
                       { $ne: ['$$this', 'Unknown'] },
                       { $ne: ['$$this', 'unknown'] },
+                      { $ne: ['$$this', 'unclassifiable'] },
+                      { $ne: ['$$this', 'Unclassifiable'] },
                     ]},
                   ]},
                   '$$this',
