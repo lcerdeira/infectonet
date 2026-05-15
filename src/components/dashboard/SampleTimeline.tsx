@@ -43,9 +43,14 @@ export function SampleTimeline({ records }: Props) {
     height: 260,
   };
 
+  // Stable key based on the year range — forces Plotly to remount rather than
+  // patch when the timeline data changes completely (e.g. switching viruses).
+  const plotKey = `${trace.x[0] ?? 'empty'}-${trace.x[trace.x.length - 1] ?? 'empty'}`;
+
   return (
     <div className="w-full">
       <Plot
+        key={plotKey}
         data={[trace]}
         layout={layout}
         config={{ displayModeBar: false, responsive: true }}
