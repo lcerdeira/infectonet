@@ -1,9 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+import { SafePlot } from './SafePlot';
 
 interface Props {
   records: Record<string, unknown>[];
@@ -43,18 +41,12 @@ export function SampleTimeline({ records }: Props) {
     height: 260,
   };
 
-  // Stable key based on the year range — forces Plotly to remount rather than
-  // patch when the timeline data changes completely (e.g. switching viruses).
-  const plotKey = `${trace.x[0] ?? 'empty'}-${trace.x[trace.x.length - 1] ?? 'empty'}`;
-
   return (
     <div className="w-full">
-      <Plot
-        key={plotKey}
+      <SafePlot
         data={[trace]}
         layout={layout}
         config={{ displayModeBar: false, responsive: true }}
-        style={{ width: '100%' }}
       />
     </div>
   );

@@ -1,11 +1,8 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import type { GenotypeTrend } from '@/types/virus';
-
-// Plotly has no SSR support — load client-side only
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+import { SafePlot } from './SafePlot';
 
 interface Props {
   trends: GenotypeTrend[];
@@ -52,18 +49,12 @@ export function GenotypeTrends({ trends }: Props) {
     height: 380,
   };
 
-  // Key on the genotype signature so Plotly remounts (instead of patching) when
-  // the set of genotypes changes — prevents the _scrollZoom undefined error.
-  const plotKey = genotypes.join('|');
-
   return (
     <div className="w-full">
-      <Plot
-        key={plotKey}
+      <SafePlot
         data={traces}
         layout={layout}
         config={{ displayModeBar: false, responsive: true }}
-        style={{ width: '100%' }}
       />
     </div>
   );
