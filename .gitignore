@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# GISAID downloads — cannot be shared publicly per GISAID ToS
+data/gisaid/
