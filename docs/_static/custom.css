@@ -1,0 +1,17 @@
+/* InfectoNET — ReadTheDocs custom styles */
+
+/* Tighten table column padding slightly */
+.wy-table-responsive table td,
+.wy-table-responsive table th {
+  padding: 6px 10px;
+}
+
+/* Make code blocks stand out a bit more */
+.highlight pre {
+  border-left: 3px solid #2980B9;
+}
+
+/* Sidebar nav active item accent */
+.wy-menu-vertical li.current a {
+  border-right: 3px solid #2980B9;
+}
