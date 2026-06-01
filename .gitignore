@@ -45,4 +45,4 @@ next-env.d.ts
 
 # GISAID downloads — cannot be shared publicly per GISAID ToS
 data/gisaid/
-.figures/
+figures/
