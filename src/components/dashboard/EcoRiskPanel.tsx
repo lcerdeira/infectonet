@@ -3,16 +3,18 @@
 /**
  * EcoRiskPanel — Ecological Risk Intelligence panel.
  *
- * Shows for each pathogen:
- *   • Current ENSO/ONI status + 5-year sparkline (rodent/vector-borne viruses)
- *   • Conflict/deforestation risk index (filoviruses, haemorrhagic fevers)
- *   • Composite risk score + actionable narrative
+ * Four live data sources:
+ *   1. ENSO/ONI (NOAA)        — climate driver; 12-18 month lag
+ *   2. Rainfall anomaly (Open-Meteo ERA5) — local precip vs 30-yr baseline
+ *   3. Forest loss trend (World Bank)     — deforestation in endemic country
+ *   4. Regional SST anomaly (NOAA sstoi)  — ocean temperature for tropical vectors
  *
  * Powered by /api/ecorisk?virus=<id>
  */
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, TrendingUp, Zap, Shield, RefreshCw, Info } from 'lucide-react';
+import { AlertTriangle, TrendingUp, Zap, Shield, RefreshCw, Info,
+         CloudRain, TreePine, Thermometer } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 
 interface AnnualOni {
@@ -22,6 +24,20 @@ interface AnnualOni {
   color:   string;
 }
 
+interface RainfallMonth {
+  month: string; actual: number; normal: number;
+  anomaly: number; anomalyPct: number; phase: string;
+}
+
+interface ForestCountry {
+  country: string; iso: string; latestYear: string; latestForest: number;
+  change5yr: number; change5yrPct: number; trend: string;
+}
+
+interface SSTInfo {
+  basin: string; value: number; phase: string; color: string; month: string | null; source: string;
+}
+
 interface EcoRiskData {
   virus:      string;
   riskScore:  number;
@@ -29,23 +45,19 @@ interface EcoRiskData {
   riskColor:  string;
   narrative:  string;
   drivers: {
-    enso:     boolean;
-    conflict: boolean;
+    enso: boolean; conflict: boolean; rainfall: boolean; forest: boolean; sst: boolean;
   };
   enso: {
-    currentOni:    number;
-    currentPhase:  string;
-    currentSeason: string | null;
-    latestYear:    number | null;
-    annualSeries:  AnnualOni[];
-    recentMax:     number;
-    lagNote:       string | null;
+    currentOni: number; currentPhase: string;
+    currentSeason: string | null; latestYear: number | null;
+    annualSeries: AnnualOni[]; recentMax: number; lagNote: string | null;
   };
-  conflict: {
-    score:   number;
-    note:    string;
-    sources: string[];
+  rainfall: {
+    region: string | null; months: RainfallMonth[]; source: string; note: string;
   } | null;
+  sst:    SSTInfo | null;
+  forest: { countries: ForestCountry[]; source: string; note: string } | null;
+  conflict: { score: number; note: string; sources: string[] } | null;
 }
 
 function phaseLabel(phase: string) {
@@ -245,18 +257,120 @@ export function EcoRiskPanel({ virusId }: Props) {
         </div>
       )}
 
-      {/* ── Conflict + deforestation context ─────────────────────────────── */}
+      {/* ── Rainfall anomaly ─────────────────────────────────────────────── */}
+      {data.rainfall && data.rainfall.months.length > 0 && (
+        <div className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <CloudRain className="h-4 w-4 text-blue-500" />
+            <h3 className="text-sm font-semibold text-gray-800">Rainfall Anomaly</h3>
+            <span className="text-[10px] text-gray-400 ml-auto">{data.rainfall.region}</span>
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            {data.rainfall.months.map(m => {
+              const bg = m.phase === 'wet' ? 'border-blue-200 bg-blue-50' :
+                         m.phase === 'dry' ? 'border-amber-200 bg-amber-50' : 'border-gray-200 bg-gray-50';
+              const col = m.phase === 'wet' ? '#1f77b4' : m.phase === 'dry' ? '#f59e0b' : '#6b7280';
+              return (
+                <div key={m.month} className={`rounded-xl border px-4 py-3 min-w-[130px] ${bg}`}>
+                  <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">{m.month}</p>
+                  <p className="text-xl font-bold mt-0.5" style={{ color: col }}>{m.actual} mm</p>
+                  <p className="text-[10px] text-gray-500">Baseline: {m.normal} mm</p>
+                  <p className="text-xs font-semibold mt-0.5" style={{ color: col }}>
+                    {m.anomalyPct > 0 ? '+' : ''}{m.anomalyPct}%
+                    {' '}<span className="font-normal capitalize">{m.phase}</span>
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-[10px] text-gray-400 italic flex items-start gap-1.5">
+            <Info className="h-3 w-3 shrink-0 mt-0.5" />
+            {data.rainfall.note} · {data.rainfall.source}
+          </p>
+        </div>
+      )}
+
+      {/* ── SST regional ─────────────────────────────────────────────────── */}
+      {data.sst && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Thermometer className="h-4 w-4 text-orange-500" />
+            <h3 className="text-sm font-semibold text-gray-800">Sea Surface Temperature</h3>
+            {data.sst.month && (
+              <span className="text-[10px] text-gray-400 ml-auto">{data.sst.month}</span>
+            )}
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl border px-4 py-3 text-center min-w-[110px]"
+                 style={{ borderColor: `${data.sst.color}40`, backgroundColor: `${data.sst.color}10` }}>
+              <p className="text-[10px] text-gray-500 font-medium">Anomaly (°C)</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: data.sst.color }}>
+                {data.sst.value > 0 ? '+' : ''}{data.sst.value.toFixed(2)}
+              </p>
+              <p className="text-[10px] capitalize mt-0.5" style={{ color: data.sst.color }}>
+                {data.sst.phase}
+              </p>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-800">{data.sst.basin}</p>
+              <p className="text-xs text-gray-500 mt-1 leading-relaxed">
+                Warm SST anomaly increases evaporation and atmospheric moisture, driving
+                elevated precipitation and enhanced vector breeding in downwind endemic regions.
+                Cool anomaly (La Niña side) suppresses precipitation in tropical zones.
+              </p>
+              <p className="text-[10px] text-gray-400 mt-2 italic">{data.sst.source}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Forest loss ──────────────────────────────────────────────────── */}
+      {data.forest && data.forest.countries.length > 0 && (
+        <div className="rounded-2xl border border-green-100 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <TreePine className="h-4 w-4 text-green-600" />
+            <h3 className="text-sm font-semibold text-gray-800">Forest Cover Trend</h3>
+            <span className="text-[10px] text-gray-400 ml-auto">5-year change in endemic countries</span>
+          </div>
+          <div className="space-y-2">
+            {data.forest.countries.map(c => {
+              const isLoss = c.change5yr < 0;
+              const col = isLoss ? '#d62728' : c.trend === 'stable' ? '#6b7280' : '#2ca02c';
+              const pct = Math.abs(Math.min(100, Math.abs(c.change5yrPct)));
+              return (
+                <div key={c.iso} className="flex items-center gap-3">
+                  <span className="text-xs font-semibold text-gray-700 w-32 shrink-0">{c.country}</span>
+                  <div className="flex-1 h-5 bg-gray-100 rounded-full overflow-hidden relative">
+                    <div className="h-full rounded-full transition-all duration-700"
+                         style={{ width: `${pct}%`, backgroundColor: col, opacity: 0.75 }} />
+                  </div>
+                  <span className="text-xs font-bold shrink-0 w-20 text-right" style={{ color: col }}>
+                    {c.change5yr > 0 ? '+' : ''}{c.change5yr.toLocaleString()} km²
+                  </span>
+                  <span className="text-[10px] text-gray-400 w-10 text-right">
+                    {c.change5yrPct > 0 ? '+' : ''}{c.change5yrPct.toFixed(1)}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-3 text-[10px] text-gray-400 italic flex items-start gap-1.5">
+            <Info className="h-3 w-3 shrink-0 mt-0.5" />
+            {data.forest.note} · {data.forest.source}
+          </p>
+        </div>
+      )}
+
+      {/* ── Conflict structural risk ──────────────────────────────────────── */}
       {showConflict && data.conflict && (
         <div className="rounded-2xl border border-red-100 bg-white p-5 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-800 mb-3">
-            Structural Risk Indicators
-          </h3>
+          <h3 className="text-sm font-semibold text-gray-800 mb-3">Structural Risk Indicators</h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {[
               { label: 'Conflict Index', value: `${data.conflict.score}/100`, color: '#d62728',
                 sub: 'Armed conflict density in endemic zone' },
               { label: 'Data Sources', value: data.conflict.sources.join(' · '), color: '#6b7280',
-                sub: 'ACLED events + GFW tree cover loss' },
+                sub: 'ACLED + World Bank Forest API' },
               { label: 'Risk Window', value: 'Dry season', color: '#f59e0b',
                 sub: 'Bat–human contact peaks Jun–Sep' },
             ].map(item => (
