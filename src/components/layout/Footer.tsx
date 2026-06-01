@@ -37,17 +37,26 @@ export function Footer() {
                 {t('legal_title')}
               </h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-blue-600">{t('privacy')}</a></li>
-                <li><a href="#" className="hover:text-blue-600">{t('terms')}</a></li>
-                <li><a href="#" className="hover:text-blue-600">{t('license')}</a></li>
+                <li><Link href="/data-policy" className="hover:text-blue-600">Data &amp; Privacy Policy</Link></li>
+                <li><Link href="/data-policy" className="hover:text-blue-600">GDPR Compliance</Link></li>
+                <li>
+                  <a href="https://github.com/lcerdeira/infectonet" target="_blank" rel="noopener noreferrer"
+                    className="hover:text-blue-600">Open Source (GitHub)</a>
+                </li>
               </ul>
             </div>
           </div>
         </div>
 
-        <p className="mt-8 text-xs text-gray-400">
-          © {new Date().getFullYear()} InfectoNET. Data sources: GISAID, Nextstrain. Open licence.
-        </p>
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} InfectoNET · London School of Hygiene &amp; Tropical Medicine
+          </p>
+          <p className="text-xs text-gray-400">
+            Data sources: NCBI GenBank · GISAID · Nextstrain · WHO · PAHO · NOAA · CHIRPS · GFW ·{' '}
+            <Link href="/data-policy" className="underline hover:text-gray-600">See full data policy</Link>
+          </p>
+        </div>
       </div>
     </footer>
   );
