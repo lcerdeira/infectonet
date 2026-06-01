@@ -98,25 +98,41 @@ function ensoRiskScore(currentOni: number, maxRecent: number): number {
 }
 
 // ── Risk narrative per virus ─────────────────────────────────────────────────
-function buildNarrative(vid: string, oni: number, phase: string, score: number): string {
+function buildNarrative(vid: string, oni: number, phase: string, score: number, recentMax: number): string {
   if (vid === 'hantavirus') {
+    // Strong El Niño currently active
     if (phase === 'el_nino' && oni >= 1.5) {
-      return `⚠️ HIGH RISK: Current El Niño (ONI ${oni > 0 ? '+' : ''}${oni.toFixed(2)}) ` +
-             `is expected to trigger Nothofagus masting and Oligoryzomys rodent irruption ` +
-             `in Patagonia. Historical data indicate ANDV HPS surges follow strong El Niño ` +
-             `events with a 12–18 month lag. Enhanced rodent surveillance recommended.`;
+      return `⚠️ HIGH RISK: Current El Niño (ONI +${oni.toFixed(2)}) is expected to trigger ` +
+             `Nothofagus masting and Oligoryzomys rodent irruption in Patagonia. ` +
+             `Historical data show ANDV HPS surges follow strong El Niño events with a ` +
+             `12–18 month lag. Enhanced rodent surveillance recommended in Argentina and Chile.`;
     }
     if (phase === 'el_nino') {
-      return `ELEVATED RISK: Moderate El Niño (ONI ${oni > 0 ? '+' : ''}${oni.toFixed(2)}) ` +
-             `may increase rodent populations in Patagonia. Monitor HPS case reports in ` +
-             `Argentina and Chile over the next 12–18 months.`;
+      return `ELEVATED RISK: Moderate El Niño (ONI +${oni.toFixed(2)}) may increase ` +
+             `rodent populations in Patagonia. Monitor HPS reports in Argentina and Chile ` +
+             `over the next 12–18 months.`;
+    }
+    // Lagged risk from a recent strong El Niño (now transitioning to neutral/La Niña)
+    if (recentMax >= 1.5 && (phase === 'neutral' || phase === 'la_nina')) {
+      return `⚠️ ELEVATED LAG RISK: The 2023–24 El Niño (peak ONI +${recentMax.toFixed(2)}, ` +
+             `5th strongest since 1950) has already driven a rodent population irruption ` +
+             `in Patagonia. The 12–18 month lag effect is currently active — 2024 recorded ` +
+             `67 HPS cases in Argentina (highest since 1993) and the 2025–26 cruise-ship ` +
+             `ANDV outbreak reflects ongoing elevated transmission risk. ` +
+             `Enhanced surveillance recommended through 2026.`;
+    }
+    if (recentMax >= 0.9 && (phase === 'neutral' || phase === 'la_nina')) {
+      return `MODERATE LAG RISK: A moderate El Niño event (peak ONI +${recentMax.toFixed(2)}) ` +
+             `occurred in the past 1–2 years. Residual rodent population elevation may ` +
+             `persist. Monitor HPS reports in Argentina and Chile.`;
     }
     if (phase === 'la_nina') {
-      return `LOW RISK: La Niña conditions (ONI ${oni.toFixed(2)}) typically ` +
-             `suppress masting events and rodent population booms in Patagonia. ` +
+      return `LOW RISK: La Niña conditions (ONI ${oni.toFixed(2)}) typically suppress ` +
+             `masting events and rodent population booms in Patagonia. ` +
              `Routine surveillance recommended.`;
     }
-    return `BASELINE RISK: Neutral ENSO conditions. Routine surveillance recommended.`;
+    return `BASELINE RISK: Neutral ENSO conditions with no recent strong El Niño signal. ` +
+           `Routine surveillance recommended.`;
   }
 
   if (vid === 'riftvalley') {
@@ -125,6 +141,11 @@ function buildNarrative(vid: string, oni: number, phase: string, score: number):
              `flooding low-lying areas and expanding Aedes mosquito breeding habitat. ` +
              `Historical RVF outbreaks in Kenya/Tanzania followed strong El Niño events ` +
              `(1997–98, 2006–07). Enhanced surveillance in Horn of Africa recommended.`;
+    }
+    if (recentMax >= 1.5 && (phase === 'neutral' || phase === 'la_nina')) {
+      return `MODERATE LAG RISK: The recent El Niño (peak ONI +${recentMax.toFixed(2)}) ` +
+             `may have elevated vector breeding habitat in East Africa. Monitor RVF ` +
+             `reports in Kenya, Tanzania, and Somalia.`;
     }
     return `BASELINE RISK: Current ENSO phase (${phase.replace('_',' ')}) does not indicate ` +
            `elevated RVF risk. Routine surveillance recommended.`;
@@ -207,7 +228,7 @@ export async function GET(req: NextRequest) {
     riskScore = currentPhase === 'el_nino' ? 35 : 20;
   }
 
-  const narrative = buildNarrative(virus, currentOni, currentPhase, riskScore);
+  const narrative = buildNarrative(virus, currentOni, currentPhase, riskScore, recentMax);
 
   const riskLevel =
     riskScore >= 75 ? 'HIGH' :
