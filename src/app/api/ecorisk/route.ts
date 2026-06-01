@@ -299,7 +299,7 @@ function rainfallRiskBonus(rain: { anomalyPct: number; phase: string }[] | null,
   return 0;
 }
 
-function forestRiskBonus(forest: ReturnType<Awaited<ReturnType<typeof fetchForestLoss>>>, vid: string): number {
+function forestRiskBonus(forest: { change5yrPct: number }[] | null | undefined, vid: string): number {
   if (!forest?.length) return 0;
   const worst = forest.reduce((a, b) => (a.change5yrPct < b.change5yrPct ? a : b));
   if (worst.change5yrPct <= -10) return CONFLICT_DRIVEN.has(vid) ? 15 : 10;
