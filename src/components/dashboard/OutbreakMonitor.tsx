@@ -437,7 +437,8 @@ function formatDate(raw: string): string {
 }
 
 function sourceColor(source: string) {
-  if (source === 'WHO') return 'bg-blue-100 text-blue-700';
+  if (source === 'WHO')       return 'bg-blue-100 text-blue-700';
+  if (source === 'PAHO')      return 'bg-sky-100 text-sky-700';
   if (source === 'ReliefWeb') return 'bg-green-100 text-green-700';
   return 'bg-gray-100 text-gray-600';
 }
@@ -473,7 +474,7 @@ function AlertFeed({ virusId }: { virusId: string }) {
           <Radio className="h-4 w-4 text-red-500 animate-pulse" />
           <span className="text-sm font-semibold text-gray-800">Live Alerts</span>
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-            WHO · ReliefWeb
+            WHO · PAHO · ReliefWeb
           </span>
         </div>
         <div className="flex items-center gap-3">

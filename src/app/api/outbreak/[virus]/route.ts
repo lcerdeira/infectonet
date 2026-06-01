@@ -1,7 +1,13 @@
 /**
  * GET /api/outbreak/[virus]
- * Fetches and filters WHO Disease Outbreak News + ReliefWeb RSS feeds
+ * Fetches and filters WHO News + PAHO + ReliefWeb Alerts RSS feeds
  * for a given virus. Returns an array of alert items.
+ *
+ * Sources:
+ *   - WHO News (https://www.who.int/rss-feeds/news-english.xml) — replaces the
+ *     old DON feed (/feeds/entity/csr/don/en/rss.xml) which is now Cloudflare-blocked
+ *   - PAHO     (https://www.paho.org/en/rss.xml)           — Americas outbreak coverage
+ *   - ReliefWeb Alerts (?primary_type=AL)                   — humanitarian alert type
  *
  * Cache: 30 min (server), stale-while-revalidate 10 min.
  */
@@ -17,8 +23,8 @@ interface AlertItem {
 
 /* ── per-virus keyword config ─────────────────────────────────────────────── */
 const VIRUS_KEYWORDS: Record<string, string[]> = {
-  hantavirus:    ['hantavirus', 'hantaviral', 'andes virus', 'sin nombre', 'hps', 'hfrs', 'hanta'],
-  ebola:         ['ebola', 'ebolavirus'],
+  hantavirus:    ['hantavirus', 'hantaviral', 'andes virus', 'andv', 'sin nombre', 'hps', 'hfrs', 'hanta', 'patagonia'],
+  ebola:         ['ebola', 'ebolavirus', 'evd', 'ebola virus disease', 'bundibugyo', 'sudan ebolavirus', 'zaire ebolavirus'],
   marburg:       ['marburg', 'marburgvirus'],
   mpox:          ['mpox', 'monkeypox'],
   lassa:         ['lassa'],
@@ -64,15 +70,23 @@ const VIRUS_KEYWORDS: Record<string, string[]> = {
 };
 
 /* ── RSS sources ──────────────────────────────────────────────────────────── */
+// NOTE: The old WHO DON feed (/feeds/entity/csr/don/en/rss.xml) is blocked
+// (returns HTML, Cloudflare). Use the WHO News feed which carries all DON
+// items plus broader outbreak coverage. PAHO added for Americas coverage.
 const RSS_SOURCES = [
   {
     name: 'WHO',
-    url: 'https://www.who.int/feeds/entity/csr/don/en/rss.xml',
+    url: 'https://www.who.int/rss-feeds/news-english.xml',
+    timeout: 8000,
+  },
+  {
+    name: 'PAHO',
+    url: 'https://www.paho.org/en/rss.xml',
     timeout: 8000,
   },
   {
     name: 'ReliefWeb',
-    url: 'https://reliefweb.int/updates/rss.xml?primary_type=R',
+    url: 'https://reliefweb.int/updates/rss.xml?primary_type=AL',
     timeout: 8000,
   },
 ];
@@ -178,7 +192,7 @@ export async function GET(
   });
 
   return NextResponse.json(
-    { virus, items: deduped.slice(0, 20) },
+    { virus, items: deduped.slice(0, 25) },
     {
       headers: {
         'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=600',
