@@ -8,7 +8,8 @@ import { GenotypeTrends } from './GenotypeTrends';
 import { SampleTimeline } from './SampleTimeline';
 import { VirusInsights } from './VirusInsights';
 import { OutbreakMonitor } from './OutbreakMonitor';
-import { Loader2, Database, Radio } from 'lucide-react';
+import { EcoRiskPanel } from './EcoRiskPanel';
+import { Loader2, Database, Radio, Leaf } from 'lucide-react';
 
 interface Props {
   virusId: string;
@@ -32,14 +33,22 @@ const MONITOR_ENABLED = new Set([
   'nipah', 'dengue', 'riftvalley', 'oropouche',
 ]);
 
+/** Viruses that have an EcoRisk panel */
+const ECORISK_ENABLED = new Set([
+  'hantavirus', 'ebola', 'marburg', 'lassa', 'crimean', 'nipah',
+  'dengue', 'riftvalley', 'zika', 'chikungunya', 'westnile',
+  'oropouche', 'yellowfever', 'mpox',
+]);
+
 export function VirusDashboard({ virusId }: Props) {
   const t = useTranslations('dashboard');
   const [data, setData] = useState<VirusData | null>(null);
   const [countriesData, setCountriesData] = useState<CountriesData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<'genomic' | 'outbreak'>('genomic');
-  const hasMonitor = MONITOR_ENABLED.has(virusId);
+  const [tab, setTab] = useState<'genomic' | 'outbreak' | 'ecorisk'>('genomic');
+  const hasMonitor  = MONITOR_ENABLED.has(virusId);
+  const hasEcoRisk  = ECORISK_ENABLED.has(virusId);
 
   useEffect(() => {
     setLoading(true);
@@ -136,8 +145,8 @@ export function VirusDashboard({ virusId }: Props) {
   return (
     <div className="space-y-6">
       {/* Tab switcher */}
-      {hasMonitor && (
-        <div className="flex gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 w-fit">
+      {(hasMonitor || hasEcoRisk) && (
+        <div className="flex gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 w-fit flex-wrap">
           <button
             onClick={() => setTab('genomic')}
             className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
@@ -149,23 +158,49 @@ export function VirusDashboard({ virusId }: Props) {
             <Database className="h-4 w-4" />
             Genomic Data
           </button>
-          <button
-            onClick={() => setTab('outbreak')}
-            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              tab === 'outbreak'
-                ? 'bg-white shadow-sm text-gray-900'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <Radio className="h-4 w-4 text-red-500" />
-            Outbreak Monitor
-            <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-          </button>
+          {hasMonitor && (
+            <button
+              onClick={() => setTab('outbreak')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                tab === 'outbreak'
+                  ? 'bg-white shadow-sm text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Radio className="h-4 w-4 text-red-500" />
+              Outbreak Monitor
+              <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+            </button>
+          )}
+          {hasEcoRisk && (
+            <button
+              onClick={() => setTab('ecorisk')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                tab === 'ecorisk'
+                  ? 'bg-white shadow-sm text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Leaf className="h-4 w-4 text-green-600" />
+              Ecological Risk
+            </button>
+          )}
         </div>
       )}
 
       {/* ── Outbreak Monitor tab ── */}
       {tab === 'outbreak' && <OutbreakMonitor key={virusId} virusId={virusId} />}
+
+      {/* ── EcoRisk tab ── */}
+      {tab === 'ecorisk' && (
+        <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-5">
+            <Leaf className="h-5 w-5 text-green-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Ecological Risk Intelligence</h2>
+          </div>
+          <EcoRiskPanel key={virusId} virusId={virusId} />
+        </div>
+      )}
 
       {/* ── Genomic Data tab (default) ── */}
       {tab === 'genomic' && (
