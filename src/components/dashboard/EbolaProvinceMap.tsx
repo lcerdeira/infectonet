@@ -14,7 +14,7 @@ import { RefreshCw, MapPin, Info, Move } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 import {
   DRC_PROVINCES, DRC_OUTBREAKS, SPECIES_COLOR, matchProvince,
-  REGION_COUNTRIES, type EbolaSpecies,
+  REGION_COUNTRIES, CONGO_BASIN_FOREST, type EbolaSpecies,
 } from '@/lib/drcOutbreaks';
 
 interface DivisionsData {
@@ -73,6 +73,20 @@ export function EbolaProvinceMap() {
       hovertemplate: '%{text}<extra></extra>',
     };
 
+    // Trace -1: Congo Basin rainforest overlay (translucent green, behind all)
+    const forestTrace = {
+      type: 'scattergeo' as const,
+      mode: 'lines' as const,
+      name: 'Congo Basin rainforest',
+      lon: CONGO_BASIN_FOREST.lon,
+      lat: CONGO_BASIN_FOREST.lat,
+      fill: 'toself' as const,
+      fillcolor: 'rgba(34,139,34,0.18)',
+      line: { color: 'rgba(34,139,34,0.45)', width: 1 },
+      hoverinfo: 'name' as const,
+      showlegend: true,
+    };
+
     // Trace 0: country context labels (grey, behind everything)
     const countryTrace = {
       type: 'scattergeo' as const,
@@ -81,7 +95,7 @@ export function EbolaProvinceMap() {
       lon: REGION_COUNTRIES.map(c => c.lon),
       lat: REGION_COUNTRIES.map(c => c.lat),
       text: REGION_COUNTRIES.map(c => c.name),
-      textfont: { size: 9, color: '#94a3b8', family: 'sans-serif' },
+      textfont: { size: 9, color: '#64748b', family: 'sans-serif' },
       textposition: 'middle center' as const,
       hoverinfo: 'skip' as const,
       showlegend: false,
@@ -121,7 +135,7 @@ export function EbolaProvinceMap() {
         };
       });
 
-    return [countryTrace, seqTrace, ...outbreakTraces];
+    return [forestTrace, countryTrace, seqTrace, ...outbreakTraces];
   }, [provinceSeqCounts]);
 
   if (loading) return (
@@ -175,16 +189,21 @@ export function EbolaProvinceMap() {
               scope: 'africa',
               projection: { type: 'mercator' },
               center: { lon: 24, lat: -2 },
-              lonaxis: { range: [12, 33] },
-              lataxis: { range: [-13, 6] },
+              lonaxis: { range: [8, 40] },
+              lataxis: { range: [-16, 9] },
               showland: true,
-              landcolor: '#f3f4f6',
+              landcolor: '#eef2e9',          // soft natural land tone
               showocean: true,
-              oceancolor: '#dbeafe',
+              oceancolor: '#cfe3f7',
               showcountries: true,
               countrycolor: '#6b7280',
               countrywidth: 1.2,
               subunitcolor: '#d1d5db',
+              showrivers: true,               // Congo, Nile, Zambezi rivers
+              rivercolor: '#3b82f6',
+              riverwidth: 1.1,
+              showlakes: true,                // African Great Lakes
+              lakecolor: '#7cb8e8',
               showframe: false,
               resolution: 50,
             },
@@ -211,8 +230,10 @@ export function EbolaProvinceMap() {
           <span>
             Blue bubbles = genomic sequences per province (size ∝ √count, {data.coverage}% of DRC
             sequences carry province metadata). Coloured dots = documented outbreak sites by species,
-            labelled with place &amp; year (size ∝ √cases). Grey labels = countries. Map covers the
-            DRC and the Albertine Rift border with Uganda.
+            labelled with place &amp; year (size ∝ √cases). Green shading = Congo Basin rainforest
+            (fruit-bat reservoir habitat). Blue lines = major rivers (Congo, Nile, Zambezi);
+            blue shapes = African Great Lakes (Victoria, Tanganyika, Albert, Edward, Kivu, Malawi).
+            Grey labels = countries.
           </span>
         </div>
       </div>

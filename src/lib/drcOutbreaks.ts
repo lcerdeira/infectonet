@@ -94,14 +94,39 @@ export function matchProvince(division: string): DRCProvince | undefined {
 export interface CountryLabel { name: string; lon: number; lat: number; }
 
 export const REGION_COUNTRIES: CountryLabel[] = [
-  { name: 'DEM. REP.\nCONGO', lon: 23.0, lat: -3.0 },
-  { name: 'UGANDA',           lon: 32.3, lat:  1.4 },
-  { name: 'RWANDA',           lon: 29.9, lat: -2.0 },
-  { name: 'BURUNDI',          lon: 29.9, lat: -3.4 },
-  { name: 'TANZANIA',         lon: 33.5, lat: -5.5 },
-  { name: 'ZAMBIA',           lon: 27.8, lat: -13.5 },
-  { name: 'ANGOLA',           lon: 17.0, lat: -9.0 },
-  { name: 'CONGO',            lon: 14.5, lat: -1.5 },
-  { name: 'C.A.R.',           lon: 20.5, lat:  5.5 },
-  { name: 'SOUTH\nSUDAN',     lon: 30.5, lat:  6.0 },
+  { name: 'DEM. REP.\nCONGO',   lon: 23.5, lat: -3.5 },
+  { name: 'UGANDA',             lon: 32.4, lat:  1.6 },
+  { name: 'RWANDA',             lon: 29.9, lat: -2.0 },
+  { name: 'BURUNDI',            lon: 29.9, lat: -3.5 },
+  { name: 'TANZANIA',           lon: 34.5, lat: -6.0 },
+  { name: 'KENYA',              lon: 37.5, lat:  0.5 },
+  { name: 'ZAMBIA',             lon: 27.8, lat: -14.0 },
+  { name: 'MALAWI',             lon: 34.3, lat: -13.2 },
+  { name: 'ANGOLA',             lon: 17.5, lat: -10.5 },
+  { name: 'REP. OF\nCONGO',     lon: 14.7, lat: -1.0 },
+  { name: 'GABON',              lon: 11.6, lat: -0.8 },
+  { name: 'CAMEROON',           lon: 12.5, lat:  5.0 },
+  { name: 'EQ.\nGUINEA',        lon: 10.4, lat:  1.6 },
+  { name: 'CENTRAL AFRICAN REP.', lon: 20.5, lat:  6.6 },
+  { name: 'SOUTH SUDAN',        lon: 30.0, lat:  7.0 },
+  { name: 'SUDAN',              lon: 30.0, lat:  12.5 },
+  { name: 'CHAD',               lon: 18.5, lat:  13.0 },
+  { name: 'NIGERIA',            lon:  8.0, lat:  9.5 },
+  { name: 'ETHIOPIA',           lon: 39.5, lat:  8.5 },
+  { name: 'SOMALIA',            lon: 45.5, lat:  5.0 },
+  { name: 'ZIMBABWE',           lon: 29.5, lat: -19.0 },
+  { name: 'MOZAMBIQUE',         lon: 36.0, lat: -17.5 },
+  { name: 'BOTSWANA',           lon: 24.0, lat: -22.0 },
+  { name: 'NAMIBIA',            lon: 17.0, lat: -21.5 },
 ];
+
+/**
+ * Approximate outline of the Congo Basin rainforest — the world's second-largest
+ * tropical rainforest and the reservoir habitat of fruit bats implicated in
+ * Ebola/Marburg spillover. Coordinates trace the forest's rough extent (lon, lat),
+ * clockwise. Used as a translucent green overlay for ecological context.
+ */
+export const CONGO_BASIN_FOREST: { lon: number[]; lat: number[] } = {
+  lon: [9.5, 12.0, 15.5, 19.0, 22.5, 25.5, 27.5, 28.8, 29.2, 27.5, 24.0, 20.5, 17.0, 14.0, 12.0, 9.8, 8.8, 9.5],
+  lat: [3.5, 4.5,  4.2,  4.0,  3.5,  3.0,  2.0,  0.5, -1.5, -4.0, -5.2, -5.0, -4.2, -3.5, -2.0,  0.5, 2.0, 3.5],
+};
