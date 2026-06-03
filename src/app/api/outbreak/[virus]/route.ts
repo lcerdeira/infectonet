@@ -36,10 +36,11 @@ const VIRUS_KEYWORDS: Record<string, string[]> = {
   covid19:       ['covid-19', 'sars-cov-2', 'covid'],
   influenza:     ['influenza', 'flu', 'h1n1', 'h3n2'],
   influenzab:    ['influenza b', 'flu b'],
-  avianflu:      ['avian influenza', 'h5n1', 'h5n2', 'h5n6', 'h5', 'bird flu',
+  avianflu:      ['avian influenza', 'h5n1', 'h5n2', 'h5n5', 'h5n6', 'h5', 'bird flu',
                   'highly pathogenic', 'hpai', 'antarctica', 'antarctic', 'penguin',
                   'polar bear', 'polar bird', 'arctic', 'seabird', 'ursus maritimus',
-                  'poultry outbreak', 'dairy cow', 'cattle flu', 'bear influenza'],
+                  'svalbard', 'spitsbergen', 'walrus', 'lynx', 'arctic fox',
+                  'poultry outbreak', 'dairy cow', 'cattle flu', 'raudfjorden'],
   rabies:        ['rabies'],
   yellowfever:   ['yellow fever'],
   chikungunya:   ['chikungunya', 'chikv'],
@@ -152,7 +153,7 @@ function parseItems(xml: string, source: string): AlertItem[] {
  * URL: https://www.who.int/api/news/diseaseoutbreaknews
  */
 const WHO_DON_TERMS: Record<string, string> = {
-  avianflu:   "contains(Title,'influenza') or contains(Title,'H5N') or contains(Title,'H9N') or contains(Title,'H7N') or contains(Title,'avian')",
+  avianflu:   "contains(Title,'influenza') or contains(Title,'H5N') or contains(Title,'H9N') or contains(Title,'H7N') or contains(Title,'avian') or contains(Title,'H5N5') or contains(Title,'H5N1') or contains(Title,'H5N2')",
   influenza:  "contains(Title,'influenza') or contains(Title,'H1N1') or contains(Title,'H3N2')",
   influenzab: "contains(Title,'influenza') or contains(Title,'flu')",
   ebola:      "contains(Title,'Ebola') or contains(Title,'ebola') or contains(Title,'Bundibugyo') or contains(Title,'ebolavirus')",
