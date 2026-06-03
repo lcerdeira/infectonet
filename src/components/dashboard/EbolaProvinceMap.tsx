@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useState, useMemo } from 'react';
-import { RefreshCw, MapPin, Info, Move } from 'lucide-react';
+import { RefreshCw, MapPin, Info, Move, Eye, EyeOff } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 import {
   DRC_PROVINCES, DRC_OUTBREAKS, SPECIES_COLOR, matchProvince,
@@ -26,10 +26,30 @@ interface DivisionsData {
   divisions: Record<string, { count: number; genotypes: string[] }>;
 }
 
+/** Toggleable map layers */
+type LayerKey = 'forest' | 'hydro' | 'sequences' | 'ebov' | 'sudv' | 'bdbv' | 'countries';
+
+const LAYER_DEFS: { key: LayerKey; label: string; color: string }[] = [
+  { key: 'forest',    label: 'Congo Basin forest',  color: '#228B22' },
+  { key: 'hydro',     label: 'Rivers & lakes',      color: '#3b82f6' },
+  { key: 'sequences', label: 'Genomic sequences',   color: '#3B82F6' },
+  { key: 'ebov',      label: 'EBOV outbreaks',      color: SPECIES_COLOR.EBOV },
+  { key: 'sudv',      label: 'SUDV outbreaks',      color: SPECIES_COLOR.SUDV },
+  { key: 'bdbv',      label: 'BDBV outbreaks',      color: SPECIES_COLOR.BDBV },
+  { key: 'countries', label: 'Country labels',      color: '#64748b' },
+];
+
 export function EbolaProvinceMap() {
   const [data, setData] = useState<DivisionsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  // All layers visible by default
+  const [active, setActive] = useState<Record<LayerKey, boolean>>({
+    forest: true, hydro: true, sequences: true,
+    ebov: true, sudv: true, bdbv: true, countries: true,
+  });
+  const toggle = (k: LayerKey) => setActive(a => ({ ...a, [k]: !a[k] }));
 
   const load = () => {
     setLoading(true);
@@ -105,8 +125,9 @@ export function EbolaProvinceMap() {
     const bySpecies: Record<EbolaSpecies, typeof DRC_OUTBREAKS> = { EBOV: [], SUDV: [], BDBV: [] };
     for (const o of DRC_OUTBREAKS) bySpecies[o.species].push(o);
 
+    const speciesToKey: Record<EbolaSpecies, LayerKey> = { EBOV: 'ebov', SUDV: 'sudv', BDBV: 'bdbv' };
     const outbreakTraces = (Object.keys(bySpecies) as EbolaSpecies[])
-      .filter(sp => bySpecies[sp].length > 0)
+      .filter(sp => bySpecies[sp].length > 0 && active[speciesToKey[sp]])
       .map(sp => {
         const list = bySpecies[sp];
         return {
@@ -135,8 +156,14 @@ export function EbolaProvinceMap() {
         };
       });
 
-    return [forestTrace, countryTrace, seqTrace, ...outbreakTraces];
-  }, [provinceSeqCounts]);
+    // Assemble only the active layers
+    return [
+      active.forest    ? forestTrace  : null,
+      active.countries ? countryTrace : null,
+      active.sequences ? seqTrace     : null,
+      ...outbreakTraces,
+    ].filter((t): t is NonNullable<typeof t> => t != null);
+  }, [provinceSeqCounts, active]);
 
   if (loading) return (
     <div className="flex items-center gap-2 py-10 text-gray-400 text-sm">
@@ -182,6 +209,40 @@ export function EbolaProvinceMap() {
             </span>
           </div>
         </div>
+
+        {/* Layer toggle buttons */}
+        <div className="mb-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400 mb-1.5">
+            Map layers — click to show / hide
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {LAYER_DEFS.map(layer => {
+              const on = active[layer.key];
+              return (
+                <button
+                  key={layer.key}
+                  onClick={() => toggle(layer.key)}
+                  className={`flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                    on
+                      ? 'border-gray-300 bg-white text-gray-700 shadow-sm'
+                      : 'border-gray-200 bg-gray-50 text-gray-400'
+                  }`}
+                  title={on ? `Hide ${layer.label}` : `Show ${layer.label}`}
+                >
+                  <span
+                    className="h-2.5 w-2.5 rounded-full inline-block shrink-0"
+                    style={{ backgroundColor: on ? layer.color : '#d1d5db' }}
+                  />
+                  {layer.label}
+                  {on
+                    ? <Eye className="h-3 w-3 opacity-50" />
+                    : <EyeOff className="h-3 w-3 opacity-50" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <SafePlot
           data={traces}
           layout={{
@@ -199,10 +260,10 @@ export function EbolaProvinceMap() {
               countrycolor: '#6b7280',
               countrywidth: 1.2,
               subunitcolor: '#d1d5db',
-              showrivers: true,               // Congo, Nile, Zambezi rivers
+              showrivers: active.hydro,       // Congo, Nile, Zambezi rivers
               rivercolor: '#3b82f6',
               riverwidth: 1.1,
-              showlakes: true,                // African Great Lakes
+              showlakes: active.hydro,         // African Great Lakes
               lakecolor: '#7cb8e8',
               showframe: false,
               resolution: 50,
