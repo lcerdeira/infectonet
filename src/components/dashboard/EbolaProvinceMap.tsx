@@ -32,7 +32,7 @@ type LayerKey = 'forest' | 'hydro' | 'bats' | 'sequences' | 'ebov' | 'sudv' | 'b
 const LAYER_DEFS: { key: LayerKey; label: string; color: string; icon?: string }[] = [
   { key: 'forest',    label: 'Congo Basin forest',  color: '#228B22' },
   { key: 'hydro',     label: 'Rivers & lakes',      color: '#3b82f6' },
-  { key: 'bats',      label: 'Bat reservoir 🦇',    color: '#7c3aed', icon: '🦇' },
+  { key: 'bats',      label: 'Bat reservoir 🦇',    color: '#db2777', icon: '🦇' },
   { key: 'sequences', label: 'Genomic sequences',   color: '#3B82F6' },
   { key: 'ebov',      label: 'EBOV outbreaks',      color: SPECIES_COLOR.EBOV },
   { key: 'sudv',      label: 'SUDV outbreaks',      color: SPECIES_COLOR.SUDV },
@@ -123,8 +123,8 @@ export function EbolaProvinceMap() {
       ),
       marker: {
         size: 22,
-        color: 'rgba(124,58,237,0.12)',   // faint violet halo behind the glyph
-        line: { color: 'rgba(124,58,237,0.4)', width: 1 },
+        color: 'rgba(219,39,119,0.12)',   // faint magenta halo behind the glyph
+        line: { color: 'rgba(219,39,119,0.5)', width: 1.2 },
         symbol: 'circle',
       },
       hovertemplate: '%{customdata}<extra></extra>',
