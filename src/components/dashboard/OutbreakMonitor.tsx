@@ -19,6 +19,8 @@ import {
   Thermometer, Users, FlaskConical, MapPin, Activity, Ship, Navigation, Globe,
 } from 'lucide-react';
 
+import { EbolaProvinceMap } from './EbolaProvinceMap';
+
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 /* ─── 2026 Hantavirus/ANDV Patagonia Outbreak Ship Route ────────────────── */
@@ -785,6 +787,22 @@ export function OutbreakMonitor({ virusId }: Props) {
         </div>
         <AlertFeed virusId={virusId} />
       </div>
+
+      {/* Ebola DRC province-level map */}
+      {virusId === 'ebola' && (
+        <div className="rounded-2xl border border-red-100 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <MapPin className="h-5 w-5 text-red-500" />
+            <h2 className="text-lg font-semibold text-gray-900">DRC Sub-National Map — Provinces &amp; Outbreak Sites</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+            Province-level view of Ebola in the Democratic Republic of the Congo, combining genomic
+            sequence geolocation with the documented history of outbreaks since 1976. The 2025–26
+            Bundibugyo event spans the Albertine Rift on the Uganda–DRC border.
+          </p>
+          <EbolaProvinceMap />
+        </div>
+      )}
 
       {/* Outbreak history chart (if available) */}
       {clinical?.outbreakHistory.length > 0 && (
