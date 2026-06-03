@@ -402,7 +402,9 @@ const CLINICAL_DB: Record<string, ClinicalInfo> = {
       'Human-to-human transmission rare — not sustained',
       'Migratory waterbirds (Anseriformes) as primary reservoir and long-distance vectors',
       '⚠️ 2023–2026: HPAI H5N1 documented in Antarctic penguins (gentoo, chinstrap, king) and sub-Antarctic seabirds — unprecedented geographic range',
-      '2024: First detection in US dairy cattle — spillover via unknown route; limited human cases in farm workers',
+      '⚠️ Polar bear (Ursus maritimus): H5N1 clade 2.3.4.4b confirmed in free-ranging juvenile, North Slope Borough, Alaska (Elsmo et al., Emerg Infect Dis 2024) — first documented case in a polar bear',
+      '⚠️ Black bears (Ursus americanus): 2 cases with meningoencephalitis, Québec, Canada — isolates carried D701N mutation in PB2 gene (promotes mammalian host adaptation)',
+      '2024: First detection in US dairy cattle — spillover via unknown route; 71 human cases in farm workers (CFR <2% with early oseltamivir)',
     ],
     symptoms: [
       { phase: 'Early (Days 1–3)', signs: ['High fever (>38°C)', 'Cough', 'Sore throat', 'Myalgia', 'Rhinorrhoea'] },
@@ -418,10 +420,10 @@ const CLINICAL_DB: Record<string, ClinicalInfo> = {
       'Baloxavir marboxil — under evaluation for H5N1',
     ],
     variants: [
-      { name: 'H5N1 clade 2.3.4.4b', abbr: 'H5N1', geography: 'Global (dominant since 2021)', notes: 'Responsible for unprecedented wildlife mortality; US cattle 2024; Antarctica 2023–2026' },
-      { name: 'H5N2', abbr: 'H5N2', geography: 'USA (poultry), historical Asia', notes: 'HPAI; major US poultry outbreak 2015' },
-      { name: 'H5N6', abbr: 'H5N6', geography: 'China, Southeast Asia', notes: 'Human cases; waterfowl reservoir' },
-      { name: 'H7N9', abbr: 'H7N9', geography: 'China', notes: 'Human cases 2013–2017; live bird market source' },
+      { name: 'H5N1 clade 2.3.4.4b', abbr: 'H5N1', geography: 'Global (dominant since 2021)', notes: 'Responsible for unprecedented wildlife mortality across 6 continents including Antarctica. Documented in polar bears, grizzly bears, sea lions, seals, dolphins, mink, foxes, dairy cattle. D701N PB2 mutation detected in mammalian isolates — mammalian adaptation signal.' },
+      { name: 'H5N2', abbr: 'H5N2', geography: 'USA (poultry), historical Asia', notes: 'HPAI; major US poultry outbreak 2015; 50M+ birds culled' },
+      { name: 'H5N6', abbr: 'H5N6', geography: 'China, Southeast Asia', notes: 'Human cases documented; waterfowl reservoir' },
+      { name: 'H7N9', abbr: 'H7N9', geography: 'China', notes: 'Human cases 2013–2017; live bird market source; low pathogenicity in birds but high in humans' },
     ],
     outbreakHistory: [
       { year: 1997, country: 'Hong Kong',  cases: 18,    deaths: 6   },
