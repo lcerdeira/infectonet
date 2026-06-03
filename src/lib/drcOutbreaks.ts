@@ -121,6 +121,34 @@ export const REGION_COUNTRIES: CountryLabel[] = [
 ];
 
 /**
+ * Fruit-bat reservoir hotspots for ebolaviruses across the Congo Basin.
+ * Ebola has no arthropod vector — its suspected natural reservoir is
+ * frugivorous bats. These sites reflect documented Ebola RNA/antibody
+ * detections in bats or reservoir-species range centres implicated in
+ * spillover events. (Leroy et al. Nature 2005; Pourrut et al. 2009;
+ * Olivero et al. 2017.)
+ */
+export interface BatHotspot {
+  name: string;
+  species: string;       // primary reservoir species at this site
+  lon: number;
+  lat: number;
+  note: string;
+}
+
+export const BAT_HOTSPOTS: BatHotspot[] = [
+  { name: 'Ogooué-Ivindo (Gabon)',   species: 'Hypsignathus monstrosus, Epomops franqueti', lon: 12.8, lat:  0.5, note: 'Ebola RNA/antibodies confirmed in fruit bats (Leroy et al., Nature 2005)' },
+  { name: 'Mbomo / Kéllé (Congo)',    species: 'Myonycteris torquata, Epomops franqueti',   lon: 14.5, lat:  0.0, note: '2001–2003 EBOV outbreaks epidemiologically linked to bat/primate contact' },
+  { name: 'Sangha (Cameroon)',        species: 'Hypsignathus monstrosus',                   lon: 16.0, lat:  2.4, note: 'Reservoir-species range; forest-edge interface' },
+  { name: 'Équateur forest (DRC)',    species: 'Eidolon helvum, Rousettus aegyptiacus',     lon: 18.5, lat: -0.3, note: 'Recurrent EBOV spillover zone (Bikoro/Mbandaka)' },
+  { name: 'Tshuapa / Yambuku (DRC)',  species: 'Franquet & hammer-headed fruit bats',       lon: 22.0, lat:  0.5, note: 'Near the 1976 index outbreak; dense forest reservoir habitat' },
+  { name: 'Likati / Bas-Uélé (DRC)',  species: 'Myonycteris torquata',                      lon: 24.0, lat:  3.4, note: '2017 EBOV outbreak; remote forest' },
+  { name: 'Tshopo / Kisangani (DRC)', species: 'Eidolon helvum (urban roosts)',             lon: 25.2, lat:  0.5, note: 'Large straw-coloured fruit bat colonies near population centres' },
+  { name: 'Ituri forest (DRC)',       species: 'Rousettus aegyptiacus (cave roosts)',       lon: 29.2, lat:  1.5, note: 'Eastern forest; cave-roosting reservoir (also Marburg)' },
+  { name: 'Albertine Rift (DRC/UG)',  species: 'Rousettus aegyptiacus',                     lon: 30.0, lat:  0.7, note: 'BDBV zone; cave systems straddling Uganda–DRC border' },
+];
+
+/**
  * Approximate outline of the Congo Basin rainforest — the world's second-largest
  * tropical rainforest and the reservoir habitat of fruit bats implicated in
  * Ebola/Marburg spillover. Coordinates trace the forest's rough extent (lon, lat),

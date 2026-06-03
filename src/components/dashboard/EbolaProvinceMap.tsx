@@ -14,7 +14,7 @@ import { RefreshCw, MapPin, Info, Move, Eye, EyeOff } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 import {
   DRC_PROVINCES, DRC_OUTBREAKS, SPECIES_COLOR, matchProvince,
-  REGION_COUNTRIES, CONGO_BASIN_FOREST, type EbolaSpecies,
+  REGION_COUNTRIES, CONGO_BASIN_FOREST, BAT_HOTSPOTS, type EbolaSpecies,
 } from '@/lib/drcOutbreaks';
 
 interface DivisionsData {
@@ -27,11 +27,12 @@ interface DivisionsData {
 }
 
 /** Toggleable map layers */
-type LayerKey = 'forest' | 'hydro' | 'sequences' | 'ebov' | 'sudv' | 'bdbv' | 'countries';
+type LayerKey = 'forest' | 'hydro' | 'bats' | 'sequences' | 'ebov' | 'sudv' | 'bdbv' | 'countries';
 
-const LAYER_DEFS: { key: LayerKey; label: string; color: string }[] = [
+const LAYER_DEFS: { key: LayerKey; label: string; color: string; icon?: string }[] = [
   { key: 'forest',    label: 'Congo Basin forest',  color: '#228B22' },
   { key: 'hydro',     label: 'Rivers & lakes',      color: '#3b82f6' },
+  { key: 'bats',      label: 'Bat reservoir 🦇',    color: '#7c3aed', icon: '🦇' },
   { key: 'sequences', label: 'Genomic sequences',   color: '#3B82F6' },
   { key: 'ebov',      label: 'EBOV outbreaks',      color: SPECIES_COLOR.EBOV },
   { key: 'sudv',      label: 'SUDV outbreaks',      color: SPECIES_COLOR.SUDV },
@@ -46,7 +47,7 @@ export function EbolaProvinceMap() {
 
   // All layers visible by default
   const [active, setActive] = useState<Record<LayerKey, boolean>>({
-    forest: true, hydro: true, sequences: true,
+    forest: true, hydro: true, bats: true, sequences: true,
     ebov: true, sudv: true, bdbv: true, countries: true,
   });
   const toggle = (k: LayerKey) => setActive(a => ({ ...a, [k]: !a[k] }));
@@ -107,6 +108,28 @@ export function EbolaProvinceMap() {
       showlegend: true,
     };
 
+    // Bat reservoir hotspots — drawn with the 🦇 glyph
+    const batTrace = {
+      type: 'scattergeo' as const,
+      mode: 'text+markers' as const,
+      name: 'Bat reservoir 🦇',
+      lon: BAT_HOTSPOTS.map(b => b.lon),
+      lat: BAT_HOTSPOTS.map(b => b.lat),
+      text: BAT_HOTSPOTS.map(() => '🦇'),
+      textposition: 'middle center' as const,
+      textfont: { size: 17 },
+      customdata: BAT_HOTSPOTS.map(b =>
+        `<b>🦇 ${b.name}</b><br><i>${b.species}</i><br>${b.note}`
+      ),
+      marker: {
+        size: 22,
+        color: 'rgba(124,58,237,0.12)',   // faint violet halo behind the glyph
+        line: { color: 'rgba(124,58,237,0.4)', width: 1 },
+        symbol: 'circle',
+      },
+      hovertemplate: '%{customdata}<extra></extra>',
+    };
+
     // Trace 0: country context labels (grey, behind everything)
     const countryTrace = {
       type: 'scattergeo' as const,
@@ -160,6 +183,7 @@ export function EbolaProvinceMap() {
     return [
       active.forest    ? forestTrace  : null,
       active.countries ? countryTrace : null,
+      active.bats      ? batTrace     : null,
       active.sequences ? seqTrace     : null,
       ...outbreakTraces,
     ].filter((t): t is NonNullable<typeof t> => t != null);
@@ -292,9 +316,10 @@ export function EbolaProvinceMap() {
             Blue bubbles = genomic sequences per province (size ∝ √count, {data.coverage}% of DRC
             sequences carry province metadata). Coloured dots = documented outbreak sites by species,
             labelled with place &amp; year (size ∝ √cases). Green shading = Congo Basin rainforest
-            (fruit-bat reservoir habitat). Blue lines = major rivers (Congo, Nile, Zambezi);
-            blue shapes = African Great Lakes (Victoria, Tanganyika, Albert, Edward, Kivu, Malawi).
-            Grey labels = countries.
+            (fruit-bat reservoir habitat). 🦇 = documented fruit-bat reservoir hotspots — Ebola has
+            no arthropod vector; its natural reservoir is frugivorous bats. Blue lines = major rivers
+            (Congo, Nile, Zambezi); blue shapes = African Great Lakes (Victoria, Tanganyika, Albert,
+            Edward, Kivu, Malawi). Grey labels = countries.
           </span>
         </div>
       </div>
