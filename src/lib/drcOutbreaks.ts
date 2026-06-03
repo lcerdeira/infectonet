@@ -89,3 +89,19 @@ export function matchProvince(division: string): DRCProvince | undefined {
     p.altNames.some(a => a.toLowerCase() === d || d.includes(a.toLowerCase()))
   );
 }
+
+/** Country labels for map context (centroid lon, lat) */
+export interface CountryLabel { name: string; lon: number; lat: number; }
+
+export const REGION_COUNTRIES: CountryLabel[] = [
+  { name: 'DEM. REP.\nCONGO', lon: 23.0, lat: -3.0 },
+  { name: 'UGANDA',           lon: 32.3, lat:  1.4 },
+  { name: 'RWANDA',           lon: 29.9, lat: -2.0 },
+  { name: 'BURUNDI',          lon: 29.9, lat: -3.4 },
+  { name: 'TANZANIA',         lon: 33.5, lat: -5.5 },
+  { name: 'ZAMBIA',           lon: 27.8, lat: -13.5 },
+  { name: 'ANGOLA',           lon: 17.0, lat: -9.0 },
+  { name: 'CONGO',            lon: 14.5, lat: -1.5 },
+  { name: 'C.A.R.',           lon: 20.5, lat:  5.5 },
+  { name: 'SOUTH\nSUDAN',     lon: 30.5, lat:  6.0 },
+];
