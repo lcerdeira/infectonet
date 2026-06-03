@@ -58,37 +58,23 @@ export async function GET(
       ];
     }
 
+    // Continent / region-level values that are NOT sub-national divisions.
+    // The Nextstrain `region` field is continent-level ("Africa", "Asia"…),
+    // so we only use `division` and explicitly reject continent names that
+    // sometimes leak into it.
+    const CONTINENTS = ['Africa', 'Asia', 'Europe', 'North America', 'South America',
+                        'Oceania', 'Antarctica', 'World', 'Global'];
+
     const pipeline = [
       ...(country ? [{ $match: match }] : []),
       {
         $group: {
-          _id: {
-            $let: {
-              vars: {
-                div: {
-                  $reduce: {
-                    input: [
-                      { $ifNull: ['$division', ''] },
-                      { $ifNull: ['$region',   ''] },
-                    ],
-                    initialValue: '',
-                    in: {
-                      $cond: [
-                        { $and: [{ $eq: ['$$value', ''] }, { $ne: ['$$this', ''] }] },
-                        '$$this', '$$value',
-                      ],
-                    },
-                  },
-                },
-              },
-              in: '$$div',
-            },
-          },
+          _id: { $ifNull: ['$division', ''] },
           count: { $sum: 1 },
           genotypes: { $addToSet: { $ifNull: ['$genotype', { $ifNull: ['$GENOTYPE', 'Unknown'] }] } },
         },
       },
-      { $match: { _id: { $nin: ['', null] } } },
+      { $match: { _id: { $nin: ['', null, ...CONTINENTS] } } },
       { $sort: { count: -1 } },
     ];
 
