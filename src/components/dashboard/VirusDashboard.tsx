@@ -31,6 +31,7 @@ interface CountriesData {
 const MONITOR_ENABLED = new Set([
   'hantavirus', 'ebola', 'marburg', 'mpox', 'lassa', 'crimean',
   'nipah', 'dengue', 'riftvalley', 'oropouche',
+  'avianflu', 'influenza',
 ]);
 
 /** Viruses that have an EcoRisk panel */
@@ -38,6 +39,7 @@ const ECORISK_ENABLED = new Set([
   'hantavirus', 'ebola', 'marburg', 'lassa', 'crimean', 'nipah',
   'dengue', 'riftvalley', 'zika', 'chikungunya', 'westnile',
   'oropouche', 'yellowfever', 'mpox',
+  'avianflu', 'influenza',
 ]);
 
 export function VirusDashboard({ virusId }: Props) {

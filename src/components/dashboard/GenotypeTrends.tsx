@@ -42,7 +42,7 @@ export function GenotypeTrends({ trends }: Props) {
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     font: { family: 'var(--font-geist), sans-serif', size: 12, color: '#374151' },
-    xaxis: { title: { text: '' }, gridcolor: '#f3f4f6', tickangle: -45 },
+    xaxis: { title: { text: '' }, gridcolor: '#f3f4f6', tickangle: -45, tickformat: 'd' },
     yaxis: { title: { text: 'Sequences' }, gridcolor: '#f3f4f6' },
     legend: { orientation: 'h' as const, y: -0.3 },
     margin: { l: 50, r: 20, t: 10, b: 120 },

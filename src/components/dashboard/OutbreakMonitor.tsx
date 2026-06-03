@@ -391,6 +391,57 @@ const CLINICAL_DB: Record<string, ClinicalInfo> = {
     ],
   },
 
+  avianflu: {
+    syndromes: [
+      { name: 'Avian Influenza (Human, H5N1)', regions: ['Asia', 'Africa', 'Europe', 'Americas', 'Antarctica (wildlife)'], cfr: '~60% (human cases)', incubation: '2–5 days (up to 17)' },
+      { name: 'HPAI in Wildlife/Poultry', regions: ['Global — including Antarctica since 2023'], cfr: 'Near 100% in poultry; high in seabirds', incubation: '1–5 days' },
+    ],
+    transmission: [
+      'Direct contact with infected birds or contaminated environments',
+      'Inhalation of aerosols or dust from infected poultry/droppings',
+      'Human-to-human transmission rare — not sustained',
+      'Migratory waterbirds (Anseriformes) as primary reservoir and long-distance vectors',
+      '⚠️ 2023–2026: HPAI H5N1 documented in Antarctic penguins (gentoo, chinstrap, king) and sub-Antarctic seabirds — unprecedented geographic range',
+      '2024: First detection in US dairy cattle — spillover via unknown route; limited human cases in farm workers',
+    ],
+    symptoms: [
+      { phase: 'Early (Days 1–3)', signs: ['High fever (>38°C)', 'Cough', 'Sore throat', 'Myalgia', 'Rhinorrhoea'] },
+      { phase: 'Progressive (Days 3–6)', signs: ['Rapidly worsening pneumonia', 'Dyspnoea / respiratory failure', 'ARDS in severe cases', 'Diarrhoea (distinguishes from seasonal flu)'] },
+      { phase: 'Severe', signs: ['Multiorgan failure', 'Encephalopathy', 'Septic shock', 'Secondary bacterial pneumonia'] },
+    ],
+    treatment: [
+      'Oseltamivir (Tamiflu) — first-line antiviral; start within 48h of symptom onset',
+      'Zanamivir — alternative for oseltamivir-resistant strains',
+      'Supportive ICU care; mechanical ventilation for ARDS',
+      'Avoid aspirin (Reye syndrome risk in children)',
+      'Prophylactic oseltamivir for high-exposure contacts',
+      'Baloxavir marboxil — under evaluation for H5N1',
+    ],
+    variants: [
+      { name: 'H5N1 clade 2.3.4.4b', abbr: 'H5N1', geography: 'Global (dominant since 2021)', notes: 'Responsible for unprecedented wildlife mortality; US cattle 2024; Antarctica 2023–2026' },
+      { name: 'H5N2', abbr: 'H5N2', geography: 'USA (poultry), historical Asia', notes: 'HPAI; major US poultry outbreak 2015' },
+      { name: 'H5N6', abbr: 'H5N6', geography: 'China, Southeast Asia', notes: 'Human cases; waterfowl reservoir' },
+      { name: 'H7N9', abbr: 'H7N9', geography: 'China', notes: 'Human cases 2013–2017; live bird market source' },
+    ],
+    outbreakHistory: [
+      { year: 1997, country: 'Hong Kong',  cases: 18,    deaths: 6   },
+      { year: 2003, country: 'Asia',        cases: 860,   deaths: 455 },
+      { year: 2015, country: 'USA',         cases: 0,     deaths: 0   },  // poultry only
+      { year: 2021, country: 'Global',      cases: 23,    deaths: 12  },
+      { year: 2022, country: 'Global',      cases: 10,    deaths: 5   },
+      { year: 2023, country: 'Antarctica',  cases: 0,     deaths: 0   },  // wildlife
+      { year: 2024, country: 'USA',         cases: 71,    deaths: 1   },
+      { year: 2025, country: 'Global',      cases: 45,    deaths: 18  },
+    ],
+    activeOutbreakCountries: ['US', 'CN', 'EG', 'VN', 'AQ'],
+    resourceLinks: [
+      { label: 'WHO Avian Influenza', url: 'https://www.who.int/news-room/fact-sheets/detail/influenza-(avian-and-other-zoonotic)' },
+      { label: 'CDC Bird Flu', url: 'https://www.cdc.gov/bird-flu/' },
+      { label: 'WOAH HPAI', url: 'https://www.woah.org/en/disease/avian-influenza/' },
+      { label: 'FAO EMPRES-i', url: 'https://empres-i.apps.fao.org/' },
+    ],
+  },
+
   ebola: {
     syndromes: [{ name: 'Ebola Virus Disease (EVD)', regions: ['Sub-Saharan Africa'], cfr: '25–90%', incubation: '2–21 days' }],
     transmission: ['Direct contact with blood/fluids of infected humans or animals', 'Infected fruit bats (reservoir)', 'Nosocomial spread'],
@@ -439,6 +490,7 @@ function formatDate(raw: string): string {
 function sourceColor(source: string) {
   if (source === 'WHO')       return 'bg-blue-100 text-blue-700';
   if (source === 'PAHO')      return 'bg-sky-100 text-sky-700';
+  if (source === 'WOAH')      return 'bg-orange-100 text-orange-700';
   if (source === 'ReliefWeb') return 'bg-green-100 text-green-700';
   return 'bg-gray-100 text-gray-600';
 }
@@ -474,7 +526,7 @@ function AlertFeed({ virusId }: { virusId: string }) {
           <Radio className="h-4 w-4 text-red-500 animate-pulse" />
           <span className="text-sm font-semibold text-gray-800">Live Alerts</span>
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-            WHO · PAHO · ReliefWeb
+            WHO · PAHO · WOAH · ReliefWeb
           </span>
         </div>
         <div className="flex items-center gap-3">

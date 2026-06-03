@@ -17,7 +17,7 @@ const EL_NINO  =  0.5;
 const LA_NINA  = -0.5;
 
 // ── Virus classification ──────────────────────────────────────────────────────
-const ENSO_DRIVEN     = new Set(['hantavirus','riftvalley','dengue','zika','chikungunya','westnile','oropouche','yellowfever']);
+const ENSO_DRIVEN     = new Set(['hantavirus','riftvalley','dengue','zika','chikungunya','westnile','oropouche','yellowfever','avianflu','influenza']);
 const CONFLICT_DRIVEN = new Set(['ebola','marburg','lassa','crimean','mpox']);
 const DUAL_DRIVEN     = new Set(['nipah']);
 
@@ -128,6 +128,20 @@ const VIRUS_GEO: Record<string, VirusGeo> = {
     forestCountries: ['BD','MY'],
     sstIndex: 'nino34',
     monthlyNormals: [10,20,40,100,200,350,380,330,250,120,25,10],
+  },
+  avianflu: {
+    lat: 35.0, lon: 105.0,
+    regionName: 'East/Southeast Asia & Global Flyways',
+    forestCountries: ['CN','VN','ID'],
+    sstIndex: 'nino4',   // western Pacific — drives waterbird breeding/migration conditions
+    monthlyNormals: [30,35,55,70,90,100,110,100,80,55,40,30],
+  },
+  influenza: {
+    lat: 22.0, lon: 114.0,
+    regionName: 'East Asia / Southern China',
+    forestCountries: ['CN','TH'],
+    sstIndex: 'nino34',
+    monthlyNormals: [40,50,80,120,180,220,210,190,130,80,55,40],
   },
 };
 

@@ -35,7 +35,7 @@ export function SampleTimeline({ records }: Props) {
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     font: { family: 'var(--font-geist), sans-serif', size: 12, color: '#374151' },
-    xaxis: { title: { text: 'Year' }, gridcolor: '#f3f4f6' },
+    xaxis: { title: { text: 'Year' }, gridcolor: '#f3f4f6', tickformat: 'd', dtick: 1 },
     yaxis: { title: { text: 'Sequences' }, gridcolor: '#f3f4f6' },
     margin: { l: 50, r: 20, t: 10, b: 50 },
     height: 260,

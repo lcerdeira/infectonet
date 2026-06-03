@@ -36,7 +36,9 @@ const VIRUS_KEYWORDS: Record<string, string[]> = {
   covid19:       ['covid-19', 'sars-cov-2', 'covid'],
   influenza:     ['influenza', 'flu', 'h1n1', 'h3n2'],
   influenzab:    ['influenza b', 'flu b'],
-  avianflu:      ['avian influenza', 'h5n1', 'h5n2', 'h5', 'bird flu'],
+  avianflu:      ['avian influenza', 'h5n1', 'h5n2', 'h5n6', 'h5', 'bird flu',
+                  'highly pathogenic', 'hpai', 'antarctica', 'antarctic', 'penguin',
+                  'polar bird', 'seabird', 'poultry outbreak', 'dairy cow', 'cattle flu'],
   rabies:        ['rabies'],
   yellowfever:   ['yellow fever'],
   chikungunya:   ['chikungunya', 'chikv'],
@@ -73,6 +75,7 @@ const VIRUS_KEYWORDS: Record<string, string[]> = {
 // NOTE: The old WHO DON feed (/feeds/entity/csr/don/en/rss.xml) is blocked
 // (returns HTML, Cloudflare). Use the WHO News feed which carries all DON
 // items plus broader outbreak coverage. PAHO added for Americas coverage.
+// WOAH added for animal disease events (essential for avian flu, RVF, Nipah).
 const RSS_SOURCES = [
   {
     name: 'WHO',
@@ -82,6 +85,11 @@ const RSS_SOURCES = [
   {
     name: 'PAHO',
     url: 'https://www.paho.org/en/rss.xml',
+    timeout: 8000,
+  },
+  {
+    name: 'WOAH',
+    url: 'https://www.woah.org/en/feed/',
     timeout: 8000,
   },
   {
