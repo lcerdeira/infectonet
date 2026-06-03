@@ -402,9 +402,11 @@ const CLINICAL_DB: Record<string, ClinicalInfo> = {
       'Human-to-human transmission rare — not sustained',
       'Migratory waterbirds (Anseriformes) as primary reservoir and long-distance vectors',
       '⚠️ 2023–2026: HPAI H5N1 documented in Antarctic penguins (gentoo, chinstrap, king) and sub-Antarctic seabirds — unprecedented geographic range',
-      '⚠️ Polar bear (Ursus maritimus): H5N1 clade 2.3.4.4b confirmed in free-ranging juvenile, North Slope Borough, Alaska (Elsmo et al., Emerg Infect Dis 2024) — first documented case in a polar bear',
-      '⚠️ Black bears (Ursus americanus): 2 cases with meningoencephalitis, Québec, Canada — isolates carried D701N mutation in PB2 gene (promotes mammalian host adaptation)',
-      '2024: First detection in US dairy cattle — spillover via unknown route; 71 human cases in farm workers (CFR <2% with early oseltamivir)',
+      '⚠️ Polar bear (Ursus maritimus) — Alaska, USA: H5N1 clade 2.3.4.4b in free-ranging juvenile, North Slope Borough. First polar bear globally (Elsmo et al., Emerg Infect Dis 2024, PMID 38941966).',
+      '⚠️ Polar bear (Ursus maritimus) — Svalbard, Norway: H5N1 in 1-year-old male, northern Spitsbergen. First in Norway; first in Europe for this species (Norwegian Veterinary Institute, 2024).',
+      '⚠️ Walrus (Odobenus rosmarus) — Svalbard, Norway: H5N1 confirmed, northern Spitsbergen. FIRST WALRUS EVER with H5N1 globally. Walruses form dense colonies of thousands — high amplification risk (Norwegian Veterinary Institute, 2024).',
+      '⚠️ Black bears (Ursus americanus) x2 — Québec, Canada: meningoencephalitis; D701N PB2 mutation detected — marker of mammalian host adaptation (PMID 37735770).',
+      '2024–2025: US dairy cattle outbreak; 71 human cases in farm workers (CFR <2% with early oseltamivir); December 2025: first ever H5N5 human case (USA).',
     ],
     symptoms: [
       { phase: 'Early (Days 1–3)', signs: ['High fever (>38°C)', 'Cough', 'Sore throat', 'Myalgia', 'Rhinorrhoea'] },
@@ -420,7 +422,7 @@ const CLINICAL_DB: Record<string, ClinicalInfo> = {
       'Baloxavir marboxil — under evaluation for H5N1',
     ],
     variants: [
-      { name: 'H5N1 clade 2.3.4.4b', abbr: 'H5N1', geography: 'Global (dominant since 2021)', notes: 'Responsible for unprecedented wildlife mortality across 6 continents including Antarctica. Documented in polar bears, grizzly bears, sea lions, seals, dolphins, mink, foxes, dairy cattle. D701N PB2 mutation detected in mammalian isolates — mammalian adaptation signal.' },
+      { name: 'H5N1 clade 2.3.4.4b', abbr: 'H5N1', geography: 'Global — all 7 continents including Antarctica & Arctic (Svalbard)', notes: 'Unprecedented host range expansion. Confirmed in: polar bears (Alaska + Svalbard/Europe), walrus [FIRST EVER — Svalbard], black bears, grizzly bears, sea lions, seals, dolphins, mink, foxes, cats, dairy cattle. D701N PB2 mutation in mammalian isolates = mammalian adaptation signal actively monitored by WHO/ECDC.' },
       { name: 'H5N2', abbr: 'H5N2', geography: 'USA (poultry), historical Asia', notes: 'HPAI; major US poultry outbreak 2015; 50M+ birds culled' },
       { name: 'H5N6', abbr: 'H5N6', geography: 'China, Southeast Asia', notes: 'Human cases documented; waterfowl reservoir' },
       { name: 'H7N9', abbr: 'H7N9', geography: 'China', notes: 'Human cases 2013–2017; live bird market source; low pathogenicity in birds but high in humans' },
