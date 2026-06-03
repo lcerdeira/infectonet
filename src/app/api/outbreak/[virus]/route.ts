@@ -146,7 +146,69 @@ function parseItems(xml: string, source: string): AlertItem[] {
   });
 }
 
-/* ── fetch one feed ───────────────────────────────────────────────────────── */
+/* ── WHO DON search terms per virus (for OData API) ─────────────────────────
+ * The WHO Disease Outbreak News OData API allows targeted keyword search
+ * across ALL historical DONs — not limited to the RSS recency window.
+ * URL: https://www.who.int/api/news/diseaseoutbreaknews
+ */
+const WHO_DON_TERMS: Record<string, string> = {
+  avianflu:   "contains(Title,'influenza') or contains(Title,'H5N') or contains(Title,'H9N') or contains(Title,'H7N') or contains(Title,'avian')",
+  influenza:  "contains(Title,'influenza') or contains(Title,'H1N1') or contains(Title,'H3N2')",
+  influenzab: "contains(Title,'influenza') or contains(Title,'flu')",
+  ebola:      "contains(Title,'Ebola') or contains(Title,'ebola') or contains(Title,'Bundibugyo') or contains(Title,'ebolavirus')",
+  marburg:    "contains(Title,'Marburg') or contains(Title,'marburg')",
+  mpox:       "contains(Title,'mpox') or contains(Title,'monkeypox')",
+  lassa:      "contains(Title,'Lassa') or contains(Title,'lassa')",
+  crimean:    "contains(Title,'Crimean') or contains(Title,'CCHF')",
+  nipah:      "contains(Title,'Nipah') or contains(Title,'nipah')",
+  dengue:     "contains(Title,'Dengue') or contains(Title,'dengue')",
+  riftvalley: "contains(Title,'Rift Valley') or contains(Title,'RVF')",
+  covid19:    "contains(Title,'COVID') or contains(Title,'SARS-CoV-2')",
+  hantavirus: "contains(Title,'hantavirus') or contains(Title,'Hantavirus')",
+  oropouche:  "contains(Title,'Oropouche') or contains(Title,'oropouche')",
+  chikungunya:"contains(Title,'Chikungunya') or contains(Title,'chikungunya')",
+  zika:       "contains(Title,'Zika') or contains(Title,'zika')",
+  yellowfever:"contains(Title,'Yellow fever') or contains(Title,'yellow fever')",
+  westnile:   "contains(Title,'West Nile') or contains(Title,'WNV')",
+  measles:    "contains(Title,'Measles') or contains(Title,'measles')",
+};
+
+/* ── WHO DON OData API fetch ─────────────────────────────────────────────── */
+async function fetchWHODON(filter: string): Promise<AlertItem[]> {
+  try {
+    const params = new URLSearchParams({
+      '$filter':  filter,
+      '$orderby': 'PublicationDateAndTime desc',
+      '$top':     '10',
+      '$select':  'Title,PublicationDateAndTime,ItemDefaultUrl,Summary',
+    });
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 10000);
+    const res = await fetch(
+      `https://www.who.int/api/news/diseaseoutbreaknews?${params.toString()}`,
+      {
+        signal: controller.signal,
+        headers: { 'User-Agent': 'InfectoNET/1.0' },
+        next: { revalidate: 1800 },
+      }
+    );
+    if (!res.ok) return [];
+    const data = await res.json() as { value: { Title: string; PublicationDateAndTime: string; ItemDefaultUrl: string; Summary: string }[] };
+    return (data.value ?? []).map(item => ({
+      title:   item.Title ?? '',
+      link:    item.ItemDefaultUrl
+        ? `https://www.who.int/emergencies/disease-outbreak-news/item/${item.ItemDefaultUrl.split('/').pop()}`
+        : 'https://www.who.int/emergencies/disease-outbreak-news',
+      pubDate: item.PublicationDateAndTime ?? '',
+      summary: stripTags(item.Summary ?? '').slice(0, 300),
+      source:  'WHO DON',
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/* ── fetch one RSS feed ──────────────────────────────────────────────────── */
 async function fetchFeed(url: string, source: string, timeout: number): Promise<AlertItem[]> {
   try {
     const controller = new AbortController();
@@ -171,12 +233,15 @@ export async function GET(
   { params }: { params: Promise<{ virus: string }> }
 ) {
   const { virus } = await params;
-  const keywords = VIRUS_KEYWORDS[virus] ?? [virus.replace(/_/g, ' ')];
+  const keywords   = VIRUS_KEYWORDS[virus] ?? [virus.replace(/_/g, ' ')];
+  const donFilter  = WHO_DON_TERMS[virus];
 
-  // Fetch all feeds in parallel
-  const allItems = (
-    await Promise.all(RSS_SOURCES.map(s => fetchFeed(s.url, s.name, s.timeout)))
-  ).flat();
+  // Fetch RSS feeds + WHO DON API in parallel
+  const [rssItems, donItems] = await Promise.all([
+    Promise.all(RSS_SOURCES.map(s => fetchFeed(s.url, s.name, s.timeout))).then(r => r.flat()),
+    donFilter ? fetchWHODON(donFilter) : Promise.resolve([] as AlertItem[]),
+  ]);
+  const allItems = [...donItems, ...rssItems];
 
   // Filter by keywords (title + summary, case-insensitive)
   const filtered = allItems.filter(item => {

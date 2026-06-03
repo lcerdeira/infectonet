@@ -490,6 +490,7 @@ function formatDate(raw: string): string {
 }
 
 function sourceColor(source: string) {
+  if (source === 'WHO DON')   return 'bg-blue-600 text-white';      // WHO Disease Outbreak News (direct API)
   if (source === 'WHO')       return 'bg-blue-100 text-blue-700';
   if (source === 'PAHO')      return 'bg-sky-100 text-sky-700';
   if (source === 'WOAH')      return 'bg-orange-100 text-orange-700';
