@@ -10,12 +10,39 @@ interface Props {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { virus: virusId } = await params;
+  const { virus: virusId, locale } = await params;
   const virus = VIRUS_MAP.get(virusId);
   if (!virus) return {};
+
+  const url = `https://infectonet.org/${locale}/dashboard/${virusId}`;
+  const title = `${virus.label} — Genomic Surveillance & Outbreak Tracking`;
+  const description =
+    `Track ${virus.label} (${virus.family}, ${virus.genome}) genomic surveillance on InfectoNET: `
+    + `geographic distribution, genotype/variant trends, sample timeline, and real-time outbreak `
+    + `monitoring. Free open-access data from NCBI, GISAID and Nextstrain.`;
+
   return {
-    title: virus.label,
-    description: `Genomic surveillance data for ${virus.label} — geographic distribution, variant trends, and sample timeline.`,
+    title,
+    description,
+    keywords: [
+      virus.label, virus.abbr, virus.family, 'genomic surveillance', 'outbreak',
+      'epidemiology', 'variants', 'genotypes', `${virus.label} cases`,
+      `${virus.label} map`, `${virus.label} tracker`,
+    ],
+    alternates: { canonical: url },
+    openGraph: {
+      type: 'article',
+      title,
+      description,
+      url,
+      siteName: 'InfectoNET',
+      images: [{ url: `/organisms/${virusId}.svg`, alt: virus.label }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${virus.label} — InfectoNET`,
+      description,
+    },
   };
 }
 
@@ -24,14 +51,47 @@ export function generateStaticParams() {
 }
 
 export default async function VirusDashboardPage({ params }: Props) {
-  const { virus: virusId } = await params;
+  const { virus: virusId, locale } = await params;
   const virus = VIRUS_MAP.get(virusId);
   if (!virus) notFound();
 
   await getTranslations('dashboard');
 
+  const url = `https://infectonet.org/${locale}/dashboard/${virusId}`;
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'MedicalWebPage',
+        name: `${virus.label} — Genomic Surveillance`,
+        url,
+        about: {
+          '@type': 'MedicalCondition',
+          name: virus.label,
+        },
+        description:
+          `Genomic surveillance, geographic distribution, variant trends and outbreak `
+          + `monitoring for ${virus.label} (${virus.family}).`,
+        inLanguage: 'en',
+        isPartOf: { '@type': 'WebSite', name: 'InfectoNET', url: 'https://infectonet.org' },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: `https://infectonet.org/${locale}` },
+          { '@type': 'ListItem', position: 2, name: 'Pathogens', item: `https://infectonet.org/${locale}/viruses` },
+          { '@type': 'ListItem', position: 3, name: virus.label, item: url },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="flex gap-8 items-start">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Sidebar */}
       <div className="hidden lg:block sticky top-20 self-start">
         <VirusSidebar currentVirusId={virusId} />
