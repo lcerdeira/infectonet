@@ -85,8 +85,14 @@ export const metadata: Metadata = {
     apple: '/icon-192.png',
   },
   verification: {
-    // Add your Google Search Console token here after registering the property:
-    // google: 'PASTE_GOOGLE_SITE_VERIFICATION_TOKEN',
+    // Reads the Google Search Console token from the GOOGLE_SITE_VERIFICATION
+    // environment variable (set in .env.local on the server). Once registered,
+    // add the token there and restart — no code change needed.
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    // Bing Webmaster Tools (optional):
+    other: process.env.BING_SITE_VERIFICATION
+      ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION }
+      : {},
   },
 };
 
