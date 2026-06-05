@@ -11,6 +11,7 @@ import { OutbreakMonitor } from './OutbreakMonitor';
 import { EcoRiskPanel } from './EcoRiskPanel';
 import { EarlyWarningPanel } from './EarlyWarningPanel';
 import { VectorHostMap } from './VectorHostMap';
+import { ProvinceBubbleMap, PROVINCE_MAP_CFG } from './ProvinceBubbleMap';
 import { VECTOR_HOST_MAPS } from '@/lib/vectorHostMaps';
 import { Loader2, Database, Radio, Leaf, Bug } from 'lucide-react';
 
@@ -222,6 +223,7 @@ export function VirusDashboard({ virusId }: Props) {
             ecological substrate from which spillover and transmission emerge.
           </p>
           <VectorHostMap key={virusId} virusId={virusId} />
+          {PROVINCE_MAP_CFG[virusId] && <ProvinceBubbleMap key={`pbm-${virusId}`} virusId={virusId} />}
         </div>
       )}
 
