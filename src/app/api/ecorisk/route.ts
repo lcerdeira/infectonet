@@ -200,6 +200,70 @@ async function fetchSST() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// 2b. NOAA Indian Ocean Dipole (DMI) — "ENSO of the Indian Ocean"
+//     Drives East-Africa / South-Asia rainfall (RVF, dengue Asia, Nipah)
+// ══════════════════════════════════════════════════════════════════════════════
+async function fetchIOD() {
+  const res = await fetch('https://psl.noaa.gov/gcos_wgsp/Timeseries/Data/dmi.had.long.data', {
+    next: { revalidate: 21600 },
+    headers: { 'User-Agent': 'InfectoNET/1.0' },
+  });
+  if (!res.ok) throw new Error(`IOD fetch ${res.status}`);
+  const text = await res.text();
+
+  // Format: "YEAR  m1 m2 ... m12"  (missing = -9999)
+  const monthly: { year: number; month: number; dmi: number }[] = [];
+  for (const line of text.split('\n')) {
+    const p = line.trim().split(/\s+/);
+    if (p.length < 13) continue;
+    const year = parseInt(p[0], 10);
+    if (isNaN(year) || year < 1900 || year > 2100) continue;
+    for (let m = 1; m <= 12; m++) {
+      const v = parseFloat(p[m]);
+      if (!isNaN(v) && v > -900) monthly.push({ year, month: m, dmi: v });
+    }
+  }
+  return monthly;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// 3b. Open-Meteo — temperature / humidity / soil-moisture (last complete month)
+//     Humidity → respiratory virus seasonality; soil moisture → RVF/Lassa/hanta
+// ══════════════════════════════════════════════════════════════════════════════
+async function fetchClimate(lat: number, lon: number) {
+  const now = new Date();
+  const end   = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const start = new Date(now); start.setMonth(now.getMonth() - 1);
+  const startStr = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2,'0')}-01`;
+
+  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}`
+    + `&start_date=${startStr}&end_date=${end}`
+    + `&daily=temperature_2m_mean,relative_humidity_2m_mean,soil_moisture_0_to_7cm_mean&timezone=GMT`;
+  const res = await fetch(url, { next: { revalidate: 21600 }, headers: { 'User-Agent': 'InfectoNET/1.0' } });
+  if (!res.ok) throw new Error(`Open-Meteo climate ${res.status}`);
+  const d = await res.json() as { daily: {
+    time: string[];
+    temperature_2m_mean: (number|null)[];
+    relative_humidity_2m_mean: (number|null)[];
+    soil_moisture_0_to_7cm_mean: (number|null)[];
+  } };
+
+  const avg = (arr: (number|null)[]) => {
+    const v = arr.filter((x): x is number => x !== null);
+    return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null;
+  };
+  const temp = avg(d.daily.temperature_2m_mean);
+  const humidity = avg(d.daily.relative_humidity_2m_mean);
+  const soil = avg(d.daily.soil_moisture_0_to_7cm_mean);
+  return {
+    temperature:  temp     !== null ? Math.round(temp * 10) / 10 : null,
+    humidity:     humidity !== null ? Math.round(humidity) : null,
+    soilMoisture: soil     !== null ? Math.round(soil * 1000) / 1000 : null,
+    periodStart:  startStr,
+  };
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // 3. Open-Meteo (ERA5 reanalysis) — Rainfall anomaly vs 30-yr baseline
 // ══════════════════════════════════════════════════════════════════════════════
 async function fetchRainfall(lat: number, lon: number, monthlyNormals: number[]) {
@@ -397,12 +461,20 @@ export async function GET(req: NextRequest) {
   const useEnso     = ENSO_DRIVEN.has(virus) || DUAL_DRIVEN.has(virus);
   const useConflict = CONFLICT_DRIVEN.has(virus) || DUAL_DRIVEN.has(virus);
 
+  // Indian Ocean Dipole is relevant for East-Africa / South-Asia pathogens
+  const IOD_RELEVANT = new Set(['riftvalley','dengue','chikungunya','nipah','yellowfever','crimean']);
+  const useIod = IOD_RELEVANT.has(virus);
+  // Humidity matters most for respiratory viruses
+  const RESP_HUMIDITY = new Set(['influenza','avianflu','rsv','covid19','measles']);
+
   // Parallel fetch — all sources simultaneously
-  const [oniSeries, sstRows, rainfallData, forestData] = await Promise.all([
+  const [oniSeries, sstRows, rainfallData, forestData, iodSeries, climate] = await Promise.all([
     fetchONI().catch(() => [] as Awaited<ReturnType<typeof fetchONI>>),
     fetchSST().catch(() => [] as Awaited<ReturnType<typeof fetchSST>>),
     geo ? fetchRainfall(geo.lat, geo.lon, geo.monthlyNormals).catch(() => null) : Promise.resolve(null),
     geo ? fetchForestLoss(geo.forestCountries).catch(() => null) : Promise.resolve(null),
+    useIod ? fetchIOD().catch(() => [] as Awaited<ReturnType<typeof fetchIOD>>) : Promise.resolve([]),
+    geo ? fetchClimate(geo.lat, geo.lon).catch(() => null) : Promise.resolve(null),
   ]);
 
   // ── ENSO ──────────────────────────────────────────────────────────────────
@@ -427,13 +499,29 @@ export async function GET(req: NextRequest) {
   const sstVal    = sstLatest && sstIndex !== 'none' ? (sstLatest[sstIndex as keyof typeof sstLatest] as number) : null;
   const sstInfo   = (sstVal !== null && sstVal !== undefined) ? sstLabel(sstIndex, sstVal) : null;
 
+  // ── IOD (Indian Ocean Dipole) ───────────────────────────────────────────────
+  const iodLatest = iodSeries.at(-1);
+  const iodVal    = iodLatest?.dmi ?? null;
+  const iodPhase  = iodVal === null ? null
+    : iodVal >= 0.4 ? 'positive' : iodVal <= -0.4 ? 'negative' : 'neutral';
+  // Positive IOD → wetter East Africa → RVF/dengue risk up
+  const iodBonus = (useIod && iodVal !== null && iodVal >= 0.4) ? (iodVal >= 0.8 ? 12 : 6) : 0;
+
+  // ── Climate (humidity) risk — low humidity favours influenza transmission ───
+  let humidityBonus = 0;
+  if (climate?.humidity !== null && climate?.humidity !== undefined && RESP_HUMIDITY.has(virus)) {
+    if (climate.humidity < 40) humidityBonus = 10;       // dry air → flu transmission
+    else if (climate.humidity < 55) humidityBonus = 5;
+  }
+
   // ── Risk score ────────────────────────────────────────────────────────────
   let riskScore = 20;
   if (useEnso)     riskScore = Math.max(riskScore, ensoRiskBase(recentMax));
   if (useConflict) riskScore = Math.max(riskScore, CONFLICT_RISK[virus] ?? 50);
   riskScore = Math.min(100, riskScore
     + rainfallRiskBonus(rainfallData, virus)
-    + forestRiskBonus(forestData, virus));
+    + forestRiskBonus(forestData, virus)
+    + iodBonus + humidityBonus);
 
   const riskLevel =
     riskScore >= 75 ? 'HIGH' : riskScore >= 50 ? 'ELEVATED' : riskScore >= 30 ? 'MODERATE' : 'LOW';
@@ -445,7 +533,10 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     virus, riskScore, riskLevel, riskColor, narrative,
-    drivers: { enso: useEnso, conflict: useConflict, rainfall: !!geo, forest: !!geo, sst: sstIndex !== 'none' },
+    drivers: {
+      enso: useEnso, conflict: useConflict, rainfall: !!geo, forest: !!geo,
+      sst: sstIndex !== 'none', iod: useIod, climate: !!geo,
+    },
     enso: {
       currentOni: parseFloat(currentOni.toFixed(2)),
       currentPhase,
@@ -465,6 +556,23 @@ export async function GET(req: NextRequest) {
       ...sstInfo,
       month: sstLatest ? `${sstLatest.year}-${String(sstLatest.month).padStart(2,'0')}` : null,
       source: 'NOAA SST Oceanic Indices (sstoi.indices)',
+    } : null,
+    iod: useIod && iodVal !== null ? {
+      value: parseFloat(iodVal.toFixed(2)),
+      phase: iodPhase,
+      month: iodLatest ? `${iodLatest.year}-${String(iodLatest.month).padStart(2,'0')}` : null,
+      color: iodVal >= 0.4 ? '#d62728' : iodVal <= -0.4 ? '#1f77b4' : '#6b7280',
+      note: 'Indian Ocean Dipole (DMI) — positive phase drives wetter East Africa / drier SE Asia',
+      source: 'NOAA PSL HadISST DMI',
+    } : null,
+    climate: climate ? {
+      ...climate,
+      humidityNote: climate.humidity !== null
+        ? (climate.humidity < 40 ? 'Low humidity — favours influenza/respiratory transmission'
+           : climate.humidity > 75 ? 'High humidity — favours mosquito survival'
+           : 'Moderate humidity')
+        : null,
+      source: 'Open-Meteo ERA5 (last 30 days)',
     } : null,
     forest: forestData ? {
       countries: forestData,

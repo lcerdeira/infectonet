@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, TrendingUp, Zap, Shield, RefreshCw, Info,
-         CloudRain, TreePine, Thermometer } from 'lucide-react';
+         CloudRain, TreePine, Thermometer, Waves, Droplets } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 
 interface AnnualOni {
@@ -45,7 +45,8 @@ interface EcoRiskData {
   riskColor:  string;
   narrative:  string;
   drivers: {
-    enso: boolean; conflict: boolean; rainfall: boolean; forest: boolean; sst: boolean;
+    enso: boolean; conflict: boolean; rainfall: boolean; forest: boolean;
+    sst: boolean; iod: boolean; climate: boolean;
   };
   enso: {
     currentOni: number; currentPhase: string;
@@ -56,6 +57,11 @@ interface EcoRiskData {
     region: string | null; months: RainfallMonth[]; source: string; note: string;
   } | null;
   sst:    SSTInfo | null;
+  iod:    { value: number; phase: string; month: string | null; color: string; note: string; source: string } | null;
+  climate: {
+    temperature: number | null; humidity: number | null; soilMoisture: number | null;
+    periodStart: string; humidityNote: string | null; source: string;
+  } | null;
   forest: { countries: ForestCountry[]; source: string; note: string } | null;
   conflict: { score: number; note: string; sources: string[] } | null;
 }
@@ -321,6 +327,66 @@ export function EcoRiskPanel({ virusId }: Props) {
               <p className="text-[10px] text-gray-400 mt-2 italic">{data.sst.source}</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── Indian Ocean Dipole ──────────────────────────────────────────── */}
+      {data.iod && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Waves className="h-4 w-4 text-cyan-600" />
+            <h3 className="text-sm font-semibold text-gray-800">Indian Ocean Dipole (IOD)</h3>
+            {data.iod.month && (
+              <span className="text-[10px] text-gray-400 ml-auto">{data.iod.month}</span>
+            )}
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl border px-4 py-3 text-center min-w-[110px]"
+                 style={{ borderColor: `${data.iod.color}40`, backgroundColor: `${data.iod.color}10` }}>
+              <p className="text-[10px] text-gray-500 font-medium">DMI Index</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: data.iod.color }}>
+                {data.iod.value > 0 ? '+' : ''}{data.iod.value.toFixed(2)}
+              </p>
+              <p className="text-[10px] capitalize mt-0.5" style={{ color: data.iod.color }}>
+                {data.iod.phase}
+              </p>
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-800">&ldquo;ENSO of the Indian Ocean&rdquo;</p>
+              <p className="text-xs text-gray-500 mt-1 leading-relaxed">{data.iod.note}. A
+                strong positive IOD has historically preceded Rift Valley Fever and East-African
+                arbovirus outbreaks via flood-linked vector breeding.</p>
+              <p className="text-[10px] text-gray-400 mt-2 italic">{data.iod.source}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Local climate (temp / humidity / soil) ───────────────────────── */}
+      {data.climate && (data.climate.temperature !== null || data.climate.humidity !== null) && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Droplets className="h-4 w-4 text-sky-500" />
+            <h3 className="text-sm font-semibold text-gray-800">Local Climate (last 30 days)</h3>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              { label: 'Temperature', value: data.climate.temperature !== null ? `${data.climate.temperature}°C` : '—', color: '#f97316' },
+              { label: 'Humidity',    value: data.climate.humidity !== null ? `${data.climate.humidity}%` : '—', color: '#0ea5e9' },
+              { label: 'Soil moisture', value: data.climate.soilMoisture !== null ? `${data.climate.soilMoisture} m³/m³` : '—', color: '#65a30d' },
+            ].map(item => (
+              <div key={item.label} className="rounded-xl border border-gray-100 bg-gray-50 px-3 py-3 text-center">
+                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide">{item.label}</p>
+                <p className="text-lg font-bold mt-0.5" style={{ color: item.color }}>{item.value}</p>
+              </div>
+            ))}
+          </div>
+          {data.climate.humidityNote && (
+            <p className="mt-3 text-[10px] text-gray-400 italic flex items-start gap-1.5">
+              <Info className="h-3 w-3 shrink-0 mt-0.5" />
+              {data.climate.humidityNote} · {data.climate.source}
+            </p>
+          )}
         </div>
       )}
 
