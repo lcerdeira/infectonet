@@ -35,7 +35,7 @@ export async function GET() {
       if (client) {
         try {
           count = await client.db(v.id).collection('genomes')
-            .countDocuments({});
+            .countDocuments({ excluded: { $ne: true } });
         } catch {
           // DB doesn't exist yet — count stays 0
         }

@@ -108,9 +108,11 @@ export async function GET(
       insti_susceptibility: 1,
     };
 
-    const total = await col.countDocuments({});
+    // Exclude flagged contaminant records (data-quality cleanup)
+    const FILTER = { excluded: { $ne: true } };
+    const total = await col.countDocuments(FILTER);
     const raw   = await col
-      .find({}, { projection: { _id: 0, ...PROJECTION } })
+      .find(FILTER, { projection: { _id: 0, ...PROJECTION } })
       .skip(skip)
       .limit(limit)
       .toArray();

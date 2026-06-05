@@ -99,6 +99,8 @@ export async function GET(
     };
 
     const pipeline = [
+      // Exclude flagged contaminant records (data-quality cleanup)
+      { $match: { excluded: { $ne: true } } },
       {
         $group: {
           _id: {

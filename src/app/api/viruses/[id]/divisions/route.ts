@@ -50,7 +50,7 @@ export async function GET(
     const col = client.db(id).collection('genomes');
 
     // Optional country filter — match across the candidate country fields
-    const match: Record<string, unknown> = {};
+    const match: Record<string, unknown> = { excluded: { $ne: true } };
     if (country) {
       const rx = new RegExp(country, 'i');
       match.$or = [
@@ -66,7 +66,7 @@ export async function GET(
                         'Oceania', 'Antarctica', 'World', 'Global'];
 
     const pipeline = [
-      ...(country ? [{ $match: match }] : []),
+      { $match: match },   // always excludes flagged records; adds country filter if set
       {
         $group: {
           _id: { $ifNull: ['$division', ''] },
@@ -89,9 +89,7 @@ export async function GET(
       withDivision += d.count as number;
     }
 
-    const totalForCountry = country
-      ? await col.countDocuments(match)
-      : await col.countDocuments({});
+    const totalForCountry = await col.countDocuments(match);
 
     return NextResponse.json(
       {
