@@ -9,7 +9,9 @@ import { SampleTimeline } from './SampleTimeline';
 import { VirusInsights } from './VirusInsights';
 import { OutbreakMonitor } from './OutbreakMonitor';
 import { EcoRiskPanel } from './EcoRiskPanel';
-import { Loader2, Database, Radio, Leaf } from 'lucide-react';
+import { VectorHostMap } from './VectorHostMap';
+import { VECTOR_HOST_MAPS } from '@/lib/vectorHostMaps';
+import { Loader2, Database, Radio, Leaf, Bug } from 'lucide-react';
 
 interface Props {
   virusId: string;
@@ -48,9 +50,10 @@ export function VirusDashboard({ virusId }: Props) {
   const [countriesData, setCountriesData] = useState<CountriesData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<'genomic' | 'outbreak' | 'ecorisk'>('genomic');
-  const hasMonitor  = MONITOR_ENABLED.has(virusId);
-  const hasEcoRisk  = ECORISK_ENABLED.has(virusId);
+  const [tab, setTab] = useState<'genomic' | 'outbreak' | 'ecorisk' | 'vectorhost'>('genomic');
+  const hasMonitor   = MONITOR_ENABLED.has(virusId);
+  const hasEcoRisk   = ECORISK_ENABLED.has(virusId);
+  const hasVectorMap = !!VECTOR_HOST_MAPS[virusId];
 
   useEffect(() => {
     setLoading(true);
@@ -147,7 +150,7 @@ export function VirusDashboard({ virusId }: Props) {
   return (
     <div className="space-y-6">
       {/* Tab switcher */}
-      {(hasMonitor || hasEcoRisk) && (
+      {(hasMonitor || hasEcoRisk || hasVectorMap) && (
         <div className="flex gap-1 rounded-xl border border-gray-200 bg-gray-50 p-1 w-fit flex-wrap">
           <button
             onClick={() => setTab('genomic')}
@@ -187,11 +190,39 @@ export function VirusDashboard({ virusId }: Props) {
               Ecological Risk
             </button>
           )}
+          {hasVectorMap && (
+            <button
+              onClick={() => setTab('vectorhost')}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                tab === 'vectorhost'
+                  ? 'bg-white shadow-sm text-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <Bug className="h-4 w-4 text-amber-600" />
+              Vector &amp; Host
+            </button>
+          )}
         </div>
       )}
 
       {/* ── Outbreak Monitor tab ── */}
       {tab === 'outbreak' && <OutbreakMonitor key={virusId} virusId={virusId} />}
+
+      {/* ── Vector & Host tab ── */}
+      {tab === 'vectorhost' && (
+        <div className="rounded-2xl border border-amber-100 bg-white p-6 shadow-sm">
+          <div className="flex items-center gap-2 mb-1">
+            <Bug className="h-5 w-5 text-amber-600" />
+            <h2 className="text-lg font-semibold text-gray-900">Vector &amp; Host Distribution</h2>
+          </div>
+          <p className="text-xs text-gray-500 mb-4">
+            Where the reservoir host and/or arthropod vector of this pathogen lives — the
+            ecological substrate from which spillover and transmission emerge.
+          </p>
+          <VectorHostMap key={virusId} virusId={virusId} />
+        </div>
+      )}
 
       {/* ── EcoRisk tab ── */}
       {tab === 'ecorisk' && (
