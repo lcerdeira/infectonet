@@ -56,7 +56,19 @@ Fusion
 
 The pilot uses a transparent weighted fusion::
 
-   SAI = 0.50·E + 0.30·G + 0.20·N      (N capped; never alerts alone)
+   SAI = 0.45·E + 0.40·G + 0.15·N      (N never alerts alone)
+
+**Specificity safeguards** (added after the first pilot over-alerted):
+
+* **N is recency-gated** — only outbreak alerts from the **last 90 days** count
+  as active corroboration. The WHO Disease Outbreak News API also returns
+  historical items; counting those kept N permanently "elevated" and inflated
+  most pathogens to WARNING. Stale alerts are now reported but do not raise the
+  score. This is the single largest specificity improvement.
+* **Genomic-led tiering** — WARNING requires the genomic response channel (a
+  real sequencing/lineage surge) corroborated by ecology or recent news, OR a
+  very strong ecological driver (E ≥ 80) with recent corroboration. The news
+  channel can never trigger an alert on its own.
 
 A production version would replace the fixed weights with a logistic model
 calibrated by historical hindcasting, and add explicit **critical-slowing-down**
