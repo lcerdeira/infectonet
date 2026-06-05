@@ -46,3 +46,6 @@ next-env.d.ts
 # GISAID downloads — cannot be shared publicly per GISAID ToS
 data/gisaid/
 figures/
+
+# Draft manuscripts — kept local, not published
+docs/manuscripts/
