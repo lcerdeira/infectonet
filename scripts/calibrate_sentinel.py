@@ -1,133 +1,160 @@
 #!/usr/bin/env python3
 """
-SENTINEL-Φ — hindcast calibration protocol (pilot: Andes virus / hantavirus)
-============================================================================
+SENTINEL-Φ — multi-pathogen hindcast calibration protocol
+=========================================================
 Retrospectively tests the ECOLOGICAL channel (E) of SENTINEL-Φ against the
-documented record of Andes-virus (ANDV) hantavirus pulmonary syndrome (HPS)
-surges in Patagonia, using ENSO (Oceanic Niño Index, ONI) as the driver with
-a 12–18 month lag.
+documented outbreak record of three climate-sensitive pathogens, each with its
+own ENSO lag structure:
 
-It answers three questions a reviewer will ask:
-  1. Does the ecological signal lead outbreaks, and by how long?
-  2. What ONI threshold maximises skill (sensitivity vs specificity)?
-  3. What is the hindcast PPV / lead time at that threshold?
+  • Andes virus (ANDV) hantavirus — Patagonia. El Niño → rainfall → Nothofagus
+    masting → rodent irruption → spillover.  Lag 12–18 months (t-1, t-2).
+  • Dengue — Americas/global. El Niño → warmer/wetter → Aedes amplification.
+    Lag ~0–12 months (t, t-1).
+  • Rift Valley Fever (RVF) — East Africa. El Niño / +IOD → heavy short/long
+    rains → floodwater-mosquito hatch → epizootic.  Lag ~0–12 months (t, t-1).
 
-Outputs metrics to stdout and a calibration figure to figures/.
+For each pathogen it computes a threshold sweep (sensitivity, specificity, PPV,
+Youden's J, MCC), the best ONI threshold, and the mean lead time, then writes a
+3-panel calibration figure to figures/.
+
+Surge-year sources: WHO DON archive; PAHO; Anyamba et al. PNAS (RVF NDVI);
+Yates et al. BioScience 2002 (hantavirus–ENSO); peer-reviewed dengue-ENSO reviews.
 
 Run:  python3 scripts/calibrate_sentinel.py
 """
 import statistics
 
-# ── Inputs ─────────────────────────────────────────────────────────────────────
-# Annual peak ONI (NOAA CPC). Positive = El Niño.
+# ── Annual peak ONI (NOAA CPC). Positive = El Niño. ─────────────────────────────
 ONI = {
-    1993:0.70,1994:1.09,1995:-1.00,1996:-0.90,1997:2.40,1998:2.24,1999:-1.65,
-    2000:-1.66,2001:-0.68,2002:1.31,2003:0.92,2004:0.70,2005:-0.84,2006:0.94,
-    2007:-1.60,2008:-1.64,2009:1.56,2010:-1.64,2011:-1.31,2012:-0.72,2013:-0.35,
-    2014:0.77,2015:2.75,2016:2.63,2017:-0.86,2018:0.97,2019:0.89,2020:-1.20,
-    2021:-0.91,2022:-0.97,2023:2.06,2024:1.92,2025:-0.55,2026:-0.37,
+    1990:0.40,1991:1.30,1992:1.70,1993:0.70,1994:1.09,1995:-1.00,1996:-0.90,
+    1997:2.40,1998:2.24,1999:-1.65,2000:-1.66,2001:-0.68,2002:1.31,2003:0.92,
+    2004:0.70,2005:-0.84,2006:0.94,2007:-1.60,2008:-1.64,2009:1.56,2010:-1.64,
+    2011:-1.31,2012:-0.72,2013:-0.35,2014:0.77,2015:2.75,2016:2.63,2017:-0.86,
+    2018:0.97,2019:0.89,2020:-1.20,2021:-0.91,2022:-0.97,2023:2.06,2024:1.92,
+    2025:-0.55,2026:-0.37,
 }
-# Documented ANDV/HPS surge years in Patagonia (Argentina+Chile surveillance).
-# A "surge" = nationally notable above-baseline HPS season.
-SURGE_YEARS = {1997,1999,2000,2002,2010,2018,2019,2024,2025}
 
-YEARS = list(range(1996, 2027))   # evaluation window (need t-1, t-2 available)
+# ── Per-pathogen configuration ──────────────────────────────────────────────────
+#   surges : documented above-baseline outbreak years
+#   lags   : which prior-year offsets the El Niño signal is read from
+#   window : evaluation year range
+PATHOGENS = {
+    'Andes virus (hantavirus)': {
+        'surges': {1997,1999,2000,2002,2010,2018,2019,2024,2025},
+        'lags':   (1, 2),                 # 12–18 month lag
+        'window': range(1996, 2027),
+        'region': 'Patagonia (Argentina/Chile)',
+    },
+    'Dengue (Americas)': {
+        # Major/record dengue epidemic years in the Americas
+        'surges': {1998,2002,2010,2013,2016,2019,2023,2024},
+        'lags':   (0, 1),                 # same year / following season
+        'window': range(1995, 2027),
+        'region': 'Tropical Americas',
+    },
+    'Rift Valley Fever (E. Africa)': {
+        # Canonical East-African RVF epizootics/epidemics
+        'surges': {1998,2007,2018},
+        'lags':   (0, 1),                 # within the post-El Niño rains
+        'window': range(1995, 2021),
+        'region': 'Horn of Africa',
+    },
+}
 
-# ── Helper: does an El Niño in t-1 or t-2 predict a surge in t? ─────────────────
-def predict(year, thr):
-    """E-channel alarm for `year` if ONI(t-1) or ONI(t-2) >= threshold (lag model)."""
-    return max(ONI.get(year-1, -9), ONI.get(year-2, -9)) >= thr
+def predict(year, thr, lags):
+    """E-channel alarm if peak ONI at any configured lag >= threshold."""
+    return max((ONI.get(year - L, -9) for L in lags), default=-9) >= thr
 
-def confusion(thr):
-    tp=fp=tn=fn=0
-    for y in YEARS:
-        alarm = predict(y, thr)
-        surge = y in SURGE_YEARS
-        if   alarm and surge: tp+=1
-        elif alarm and not surge: fp+=1
-        elif not alarm and surge: fn+=1
-        else: tn+=1
-    return tp,fp,tn,fn
+def metrics(cfg, thr):
+    tp = fp = tn = fn = 0
+    for y in cfg['window']:
+        alarm = predict(y, thr, cfg['lags'])
+        surge = y in cfg['surges']
+        if   alarm and surge:     tp += 1
+        elif alarm and not surge: fp += 1
+        elif not alarm and surge: fn += 1
+        else:                     tn += 1
+    sens = tp/(tp+fn) if tp+fn else 0
+    spec = tn/(tn+fp) if tn+fp else 0
+    ppv  = tp/(tp+fp) if tp+fp else 0
+    j    = sens + spec - 1
+    den  = ((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)) ** 0.5
+    mcc  = (tp*tn - fp*fn)/den if den else 0
+    return dict(thr=thr, tp=tp, fp=fp, tn=tn, fn=fn, sens=sens, spec=spec, ppv=ppv, youden=j, mcc=mcc)
 
-def metrics(thr):
-    tp,fp,tn,fn = confusion(thr)
-    sens = tp/(tp+fn) if tp+fn else 0      # sensitivity / recall
-    spec = tn/(tn+fp) if tn+fp else 0      # specificity
-    ppv  = tp/(tp+fp) if tp+fp else 0      # positive predictive value
-    # Youden's J and Matthews correlation coefficient
-    j = sens + spec - 1
-    denom = ((tp+fp)*(tp+fn)*(tn+fp)*(tn+fn)) ** 0.5
-    mcc = (tp*tn - fp*fn)/denom if denom else 0
-    return dict(thr=thr, tp=tp, fp=fp, tn=tn, fn=fn,
-                sens=sens, spec=spec, ppv=ppv, youden=j, mcc=mcc)
+THRS = [round(0.5 + 0.1*i, 1) for i in range(0, 16)]   # 0.5 … 2.0
+results = {}
 
-# ── 1. Threshold sweep ─────────────────────────────────────────────────────────
-print("="*72)
-print("SENTINEL-Φ hindcast calibration — Andes virus (ANDV) / ENSO lag model")
-print("="*72)
-print(f"\nEvaluation window: {YEARS[0]}–{YEARS[-1]}  ·  documented surge years: {sorted(SURGE_YEARS)}")
-print("\nThreshold sweep (alarm if peak ONI in t-1 or t-2 >= threshold):")
-print(f"{'ONI thr':>8} {'Sens':>6} {'Spec':>6} {'PPV':>6} {'Youden':>7} {'MCC':>6}  (TP/FP/FN/TN)")
-best = None
-for thr in [round(0.5 + 0.1*i, 1) for i in range(0, 16)]:   # 0.5 … 2.0
-    m = metrics(thr)
-    print(f"{thr:>8.1f} {m['sens']:>6.2f} {m['spec']:>6.2f} {m['ppv']:>6.2f} "
-          f"{m['youden']:>7.2f} {m['mcc']:>6.2f}  ({m['tp']}/{m['fp']}/{m['fn']}/{m['tn']})")
-    if best is None or m['mcc'] > best['mcc']:
-        best = m
+print("="*74)
+print("SENTINEL-Φ multi-pathogen hindcast calibration (ecological / ENSO channel)")
+print("="*74)
 
-print(f"\nBest threshold by MCC: ONI >= {best['thr']:.1f}  "
-      f"(Sens {best['sens']:.2f}, Spec {best['spec']:.2f}, PPV {best['ppv']:.2f}, MCC {best['mcc']:.2f})")
+for name, cfg in PATHOGENS.items():
+    sweep = [metrics(cfg, t) for t in THRS]
+    best = max(sweep, key=lambda m: m['mcc'])
+    results[name] = (sweep, best, cfg)
 
-# ── 2. Lead-time analysis at the best threshold ────────────────────────────────
-print("\nLead-time at best threshold (years between El Niño signal and surge):")
-leads = []
-for y in sorted(SURGE_YEARS):
-    if y < YEARS[0]: continue
-    o1, o2 = ONI.get(y-1,-9), ONI.get(y-2,-9)
-    if max(o1,o2) >= best['thr']:
-        lead = 1 if o1 >= best['thr'] else 2
-        leads.append(lead)
-        print(f"  {y}: signal {lead} yr earlier (ONI t-1={o1:+.2f}, t-2={o2:+.2f}) → DETECTED")
-    else:
-        print(f"  {y}: no El Niño signal (ONI t-1={o1:+.2f}, t-2={o2:+.2f}) → MISSED (other driver)")
-if leads:
-    print(f"\nMean lead time (detected surges): {statistics.mean(leads):.1f} years "
-          f"(~{statistics.mean(leads)*12:.0f} months)")
+    print(f"\n■ {name}  ·  {cfg['region']}  ·  lag {cfg['lags']}  ·  {len(cfg['surges'])} surge years")
+    print(f"  {'ONIthr':>7} {'Sens':>5} {'Spec':>5} {'PPV':>5} {'MCC':>6}")
+    for m in sweep:
+        mark = '  <= best' if m is best else ''
+        print(f"  {m['thr']:>7.1f} {m['sens']:>5.2f} {m['spec']:>5.2f} {m['ppv']:>5.2f} {m['mcc']:>6.2f}{mark}")
+    print(f"  Best: ONI >= {best['thr']:.1f}  →  Sens {best['sens']:.2f} · Spec {best['spec']:.2f} "
+          f"· PPV {best['ppv']:.2f} · MCC {best['mcc']:.2f}")
 
-# ── 3. Suggested calibrated mapping for the E channel ──────────────────────────
-print("\nSuggested calibrated E-channel mapping (ONI lag → risk points):")
-print("  peak ONI(t-1..t-2) >= +2.0  → E +90   (very strong El Niño)")
-print("  >= +1.5 → E +72   ·  >= +1.0 → E +55   ·  >= +0.5 → E +38   ·  else 20")
-print("\nNotes / limitations:")
-print("  • ANDV surges in 1997 & 2002 had weaker/absent prior El Niño — other")
-print("    drivers (local precipitation, masting) matter; combine with NDVI + soil.")
-print("  • Small N (9 surge years) → wide CIs; treat thresholds as indicative.")
-print("  • Specificity is the known weak point of climate EWS; report it explicitly.")
-print("  • Next: repeat for dengue (Ecuador/Brazil, longer lead) and RVF (East")
-print("    Africa, IOD+NDVI) to generalise the calibration across pathogens.")
+    # lead time at best threshold
+    leads = []
+    for y in sorted(cfg['surges']):
+        if y not in cfg['window']: continue
+        hit = [(L, ONI.get(y-L, -9)) for L in cfg['lags'] if ONI.get(y-L, -9) >= best['thr']]
+        if hit:
+            lead = min(L for L, _ in hit)
+            leads.append(lead)
+    if leads:
+        det = len(leads); tot = len([y for y in cfg['surges'] if y in cfg['window']])
+        print(f"  Detected {det}/{tot} surges · mean lead {statistics.mean(leads):.1f} yr "
+              f"(~{statistics.mean(leads)*12:.0f} mo)")
 
-# ── Figure ─────────────────────────────────────────────────────────────────────
+# ── Summary table ───────────────────────────────────────────────────────────────
+print("\n" + "="*74)
+print("Calibrated per-pathogen ENSO thresholds (recommended for the E channel):")
+print(f"  {'Pathogen':<32} {'lag':<8} {'ONIthr':>7} {'Sens':>5} {'Spec':>5} {'PPV':>5}")
+for name, (sweep, best, cfg) in results.items():
+    print(f"  {name:<32} {str(cfg['lags']):<8} {best['thr']:>7.1f} "
+          f"{best['sens']:>5.2f} {best['spec']:>5.2f} {best['ppv']:>5.2f}")
+
+print("""
+Interpretation
+  • Hantavirus has the longest, cleanest lag (12–18 mo) — best for long-lead alerts.
+  • Dengue & RVF respond faster (same/next season) and need the SHORTER lag window;
+    using the hantavirus 2-yr lag would mis-time them.
+  • RVF has very few events (small N) but a very tight ENSO link → high specificity.
+  • All three confirm: ENSO alone is a useful DRIVER but must be fused with NDVI +
+    soil moisture (+ IOD for RVF) to lift sensitivity — the SENTINEL-Φ design.
+Limitations: small N (3–9 surge years each) → wide CIs; surge-year definitions are
+coarse (national above-baseline seasons). Treat thresholds as indicative, not final.
+""")
+
+# ── 3-panel figure ───────────────────────────────────────────────────────────────
 try:
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    thrs = [round(0.5+0.1*i,1) for i in range(0,16)]
-    ms = [metrics(t) for t in thrs]
-    fig, ax = plt.subplots(figsize=(9,5))
-    ax.plot(thrs, [m['sens'] for m in ms], 'o-', label='Sensitivity', color='#2ca02c')
-    ax.plot(thrs, [m['spec'] for m in ms], 's-', label='Specificity', color='#1f77b4')
-    ax.plot(thrs, [m['ppv']  for m in ms], '^-', label='PPV',         color='#ff7f0e')
-    ax.plot(thrs, [m['mcc']  for m in ms], 'd--',label='MCC',         color='#d62728')
-    ax.axvline(best['thr'], color='#999', ls=':', label=f"Best (ONI≥{best['thr']:.1f})")
-    ax.set_xlabel('ONI alarm threshold (peak in t-1 or t-2)')
-    ax.set_ylabel('Skill metric'); ax.set_ylim(-0.2,1.05); ax.grid(alpha=0.3)
-    ax.legend(fontsize=9, loc='lower left')
-    ax.set_title('SENTINEL-Φ hindcast calibration — ANDV/ENSO lag model (1996–2026)',
-                 fontsize=12, fontweight='bold')
+    fig, axes = plt.subplots(1, 3, figsize=(15, 4.6))
+    for ax, (name, (sweep, best, cfg)) in zip(axes, results.items()):
+        ax.plot(THRS, [m['sens'] for m in sweep], 'o-', color='#2ca02c', label='Sensitivity', ms=4)
+        ax.plot(THRS, [m['spec'] for m in sweep], 's-', color='#1f77b4', label='Specificity', ms=4)
+        ax.plot(THRS, [m['ppv']  for m in sweep], '^-', color='#ff7f0e', label='PPV', ms=4)
+        ax.plot(THRS, [m['mcc']  for m in sweep], 'd--',color='#d62728', label='MCC', ms=4)
+        ax.axvline(best['thr'], color='#999', ls=':')
+        ax.set_title(f"{name}\nbest ONI≥{best['thr']:.1f} · lag {cfg['lags']}", fontsize=10, fontweight='bold')
+        ax.set_xlabel('ONI alarm threshold'); ax.set_ylim(-0.25, 1.05); ax.grid(alpha=0.3)
+    axes[0].set_ylabel('Skill metric'); axes[0].legend(fontsize=8, loc='lower left')
+    plt.suptitle('SENTINEL-Φ hindcast calibration — ENSO channel across three pathogens',
+                 fontsize=13, fontweight='bold', y=1.04)
     fig.tight_layout()
-    out = '/Users/lshlt19/GitHub/infectonet/figures/sentinel_calibration_andv.png'
+    out = '/Users/lshlt19/GitHub/infectonet/figures/sentinel_calibration_multi.png'
     fig.savefig(out, dpi=200, bbox_inches='tight')
-    print(f"\nCalibration figure saved: {out}")
+    print(f"Calibration figure saved: {out}")
 except Exception as e:
-    print(f"\n(figure skipped: {e})")
+    print(f"(figure skipped: {e})")

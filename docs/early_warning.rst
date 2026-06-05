@@ -118,43 +118,74 @@ Two cryptographic features give SENTINEL-Φ scientific accountability:
 Federated / secure-MPC training across jurisdictions is noted as future work; it is
 unnecessary while InfectoNET consumes only already-public data.
 
-Hindcast calibration (ANDV pilot)
----------------------------------
+Hindcast calibration (multi-pathogen)
+-------------------------------------
 
 The ecological channel was calibrated retrospectively against the documented
-record of Andes-virus (ANDV) HPS surges in Patagonia (1996–2026), using ENSO
-(Oceanic Niño Index) as the driver with a 12–18 month lag. Run it with::
+outbreak record of three climate-sensitive pathogens, each with its own ENSO
+lag structure. Run it with::
 
    python3 scripts/calibrate_sentinel.py
 
-**Key hindcast results** (pure ENSO lag model, 9 documented surge years):
+Each pathogen is scored by a threshold sweep (sensitivity, specificity, PPV,
+Matthews correlation coefficient) over its evaluation window, with the ENSO
+signal read at the pathogen-appropriate lag.
 
-.. list-table::
-   :widths: 30 70
-   :header-rows: 0
+.. list-table:: Calibrated ENSO thresholds per pathogen
+   :widths: 30 12 12 10 10 10 16
+   :header-rows: 1
 
-   * - Best threshold (by MCC)
-     - peak ONI ≥ +1.5 in year t-1 or t-2
-   * - Sensitivity / Specificity
-     - 0.67 / 0.77
-   * - Positive predictive value
+   * - Pathogen (region)
+     - ENSO lag
+     - Best ONI
+     - Sens
+     - Spec
+     - PPV
+     - Mean lead
+   * - Andes virus / hantavirus (Patagonia)
+     - 12–18 mo (t-1, t-2)
+     - ≥ +1.5
+     - 0.67
+     - 0.77
      - 0.55
-   * - Matthews correlation (MCC)
-     - 0.42
-   * - Mean lead time (detected surges)
      - ~19 months
+   * - Dengue (tropical Americas)
+     - 0–12 mo (t, t-1)
+     - ≥ +1.1
+     - 0.75
+     - 0.71
+     - 0.46
+     - ~2 months
+   * - Rift Valley Fever (Horn of Africa)
+     - 0–12 mo (t, t-1)
+     - ≥ +0.9
+     - 1.00
+     - 0.43
+     - 0.19
+     - ~4 months
 
-5 of 9 surges were detected by the ENSO signal alone; the 4 misses (1997, 2002,
-2010, 2019) had weak or absent prior El Niño — confirming that **local
-precipitation, NDVI and soil moisture must be fused with ENSO**, which is
-precisely SENTINEL-Φ's multi-channel design rationale. The deployed
-``ensoRiskBase`` thresholds (≥2.0→90, ≥1.5→72, ≥1.0→55, ≥0.5→38) match this
-calibration.
+**What the calibration shows**
 
-**Limitations (reported explicitly):** small N (9 surge years) → wide
-confidence intervals; specificity is the known weak point of climate-driven
-EWS. Next steps: repeat the protocol for dengue (Ecuador/Brazil, longer lead)
-and RVF (East Africa, IOD+NDVI) to generalise calibration across pathogens.
+* **Each pathogen needs a different lag and threshold.** Hantavirus has the
+  longest, cleanest lag (rodent irruption takes 12–18 months) — ideal for
+  long-lead alerts. Dengue and RVF respond within the same or next rainy season;
+  applying the hantavirus 2-year lag would mis-time them.
+* **RVF: high sensitivity, low specificity.** El Niño caught all 3 documented
+  East-African epizootics (sens 1.00) but with many false alarms (spec 0.43) —
+  ENSO is *necessary but not sufficient*. This is the clearest demonstration
+  that the ecological channel must be **fused with NDVI, soil moisture and the
+  Indian Ocean Dipole** to be specific — exactly the SENTINEL-Φ design.
+* **The deployed ``ensoRiskBase`` thresholds** (≥2.0→90, ≥1.5→72, ≥1.0→55,
+  ≥0.5→38) align with the hantavirus/dengue optima.
+
+A 3-panel calibration figure is written to
+``figures/sentinel_calibration_multi.png``.
+
+**Limitations (reported explicitly):** small N (3–9 surge years per pathogen)
+→ wide confidence intervals; surge-year definitions are coarse (national
+above-baseline seasons). Thresholds are indicative, not final. Next steps:
+incorporate the pathogen-specific lags into the live E channel, and add the
+critical-slowing-down indicators on case/genomic series.
 
 Pilot scope
 -----------
