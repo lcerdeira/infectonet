@@ -44,6 +44,7 @@ PATHOGENS = {
         'lags':   (1, 2),                 # 12–18 month lag
         'window': range(1996, 2027),
         'region': 'Patagonia (Argentina/Chile)',
+        'op_thr': 1.5,                    # operational threshold deployed (ENSO_CAL)
     },
     'Dengue (Americas)': {
         # Major/record dengue epidemic years in the Americas
@@ -51,6 +52,7 @@ PATHOGENS = {
         'lags':   (0, 1),                 # same year / following season
         'window': range(1995, 2027),
         'region': 'Tropical Americas',
+        'op_thr': 1.1,
     },
     'Rift Valley Fever (E. Africa)': {
         # Canonical East-African RVF epizootics/epidemics
@@ -58,6 +60,7 @@ PATHOGENS = {
         'lags':   (0, 1),                 # within the post-El Niño rains
         'window': range(1995, 2021),
         'region': 'Horn of Africa',
+        'op_thr': 0.9,
     },
 }
 
@@ -92,36 +95,45 @@ print("="*74)
 for name, cfg in PATHOGENS.items():
     sweep = [metrics(cfg, t) for t in THRS]
     best = max(sweep, key=lambda m: m['mcc'])
+    op   = metrics(cfg, cfg['op_thr'])          # metrics at the DEPLOYED threshold
     results[name] = (sweep, best, cfg)
 
     print(f"\n■ {name}  ·  {cfg['region']}  ·  lag {cfg['lags']}  ·  {len(cfg['surges'])} surge years")
     print(f"  {'ONIthr':>7} {'Sens':>5} {'Spec':>5} {'PPV':>5} {'MCC':>6}")
     for m in sweep:
-        mark = '  <= best' if m is best else ''
+        flags = []
+        if m is best: flags.append('MCC-max')
+        if abs(m['thr'] - cfg['op_thr']) < 1e-9: flags.append('DEPLOYED')
+        mark = ('  <= ' + ', '.join(flags)) if flags else ''
         print(f"  {m['thr']:>7.1f} {m['sens']:>5.2f} {m['spec']:>5.2f} {m['ppv']:>5.2f} {m['mcc']:>6.2f}{mark}")
-    print(f"  Best: ONI >= {best['thr']:.1f}  →  Sens {best['sens']:.2f} · Spec {best['spec']:.2f} "
-          f"· PPV {best['ppv']:.2f} · MCC {best['mcc']:.2f}")
+    print(f"  MCC-max:  ONI >= {best['thr']:.1f} → Sens {best['sens']:.2f} Spec {best['spec']:.2f} "
+          f"PPV {best['ppv']:.2f} MCC {best['mcc']:.2f}")
+    print(f"  DEPLOYED: ONI >= {cfg['op_thr']:.1f} → Sens {op['sens']:.2f} Spec {op['spec']:.2f} "
+          f"PPV {op['ppv']:.2f} MCC {op['mcc']:.2f}  (operational; favours sensitivity)")
 
-    # lead time at best threshold
-    leads = []
+    # detected / missed + lead time AT THE DEPLOYED THRESHOLD (the reportable one)
+    detected, missed, leads = [], [], []
     for y in sorted(cfg['surges']):
         if y not in cfg['window']: continue
-        hit = [(L, ONI.get(y-L, -9)) for L in cfg['lags'] if ONI.get(y-L, -9) >= best['thr']]
+        hit = [L for L in cfg['lags'] if ONI.get(y-L, -9) >= cfg['op_thr']]
         if hit:
-            lead = min(L for L, _ in hit)
-            leads.append(lead)
+            detected.append(y); leads.append(min(hit))
+        else:
+            missed.append(y)
+    tot = len(detected) + len(missed)
+    print(f"  At deployed ONI≥{cfg['op_thr']}: detected {len(detected)}/{tot} {detected}")
+    print(f"                              missed {missed}")
     if leads:
-        det = len(leads); tot = len([y for y in cfg['surges'] if y in cfg['window']])
-        print(f"  Detected {det}/{tot} surges · mean lead {statistics.mean(leads):.1f} yr "
-              f"(~{statistics.mean(leads)*12:.0f} mo)")
+        print(f"  Mean lead (detected): {statistics.mean(leads):.2f} yr (~{statistics.mean(leads)*12:.0f} mo)")
 
 # ── Summary table ───────────────────────────────────────────────────────────────
 print("\n" + "="*74)
-print("Calibrated per-pathogen ENSO thresholds (recommended for the E channel):")
+print("DEPLOYED per-pathogen ENSO thresholds (wired into the live E channel):")
 print(f"  {'Pathogen':<32} {'lag':<8} {'ONIthr':>7} {'Sens':>5} {'Spec':>5} {'PPV':>5}")
 for name, (sweep, best, cfg) in results.items():
-    print(f"  {name:<32} {str(cfg['lags']):<8} {best['thr']:>7.1f} "
-          f"{best['sens']:>5.2f} {best['spec']:>5.2f} {best['ppv']:>5.2f}")
+    op = metrics(cfg, cfg['op_thr'])
+    print(f"  {name:<32} {str(cfg['lags']):<8} {cfg['op_thr']:>7.1f} "
+          f"{op['sens']:>5.2f} {op['spec']:>5.2f} {op['ppv']:>5.2f}")
 
 print("""
 Interpretation

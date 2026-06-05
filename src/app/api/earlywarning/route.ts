@@ -30,6 +30,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 import { VIRUS_MAP } from '@/lib/viruses';
 import { appendPrediction } from '@/lib/predictionLog';
+import { signPayload, KEY_ID } from '@/lib/signing';
 
 interface ChannelScore { value: number; elevated: boolean; detail: string; }
 
@@ -161,8 +162,10 @@ export async function GET(req: NextRequest) {
     },
   };
 
-  // ── Tamper-evident integrity digest (seed of a hash-chained log) ───────────
-  const digest = createHash('sha256').update(JSON.stringify(cap)).digest('hex');
+  // ── Tamper-evident integrity digest + Ed25519 signature ────────────────────
+  const capJson = JSON.stringify(cap);
+  const digest = createHash('sha256').update(capJson).digest('hex');
+  const signature = signPayload(capJson);   // base64 Ed25519, or null if no key
 
   // Append to the persistent Merkle-style prediction log (idempotent per day)
   const logged = await appendPrediction(virus, sai, tier, cap).catch(() => null);
@@ -189,6 +192,12 @@ export async function GET(req: NextRequest) {
       seq: logged?.seq ?? null,
       chainHash: logged?.hash ?? null,
     },
+    signature: signature ? {
+      algorithm: 'Ed25519',
+      keyId: KEY_ID,
+      value: signature,
+      verify: 'GET /api/earlywarning/pubkey — verify Ed25519(value) over JSON.stringify(cap)',
+    } : { algorithm: 'Ed25519', signed: false, note: 'signing key not configured on this instance' },
     generated: sent,
     note: 'Pilot research instrument — not a substitute for official public-health alerts.',
   }, { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600' } });

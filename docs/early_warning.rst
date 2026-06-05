@@ -148,7 +148,7 @@ signal read at the pathogen-appropriate lag.
      - 0.67
      - 0.77
      - 0.55
-     - ~19 months
+     - ~16 months
    * - Dengue (tropical Americas)
      - 0–12 mo (t, t-1)
      - ≥ +1.1
@@ -170,6 +170,13 @@ signal read at the pathogen-appropriate lag.
   longest, cleanest lag (rodent irruption takes 12–18 months) — ideal for
   long-lead alerts. Dengue and RVF respond within the same or next rainy season;
   applying the hantavirus 2-year lag would mis-time them.
+* **Hantavirus detail (at the deployed ONI ≥ +1.5):** 6 of 9 documented surges
+  detected (1999, 2000, 2010, 2018, 2024, 2025); 3 missed (1997, 2002, 2019),
+  all with a weak/absent prior El Niño — i.e. driven by local precipitation or
+  masting rather than a basin-scale El Niño, which is exactly why the ecological
+  channel must be fused with NDVI and soil moisture rather than used alone.
+  These figures match ``scripts/calibrate_sentinel.py`` and the deployed
+  ``ENSO_CAL`` thresholds (no discrepancy between docs, code, and the live API).
 * **RVF: high sensitivity, low specificity.** El Niño caught all 3 documented
   East-African epizootics (sens 1.00) but with many false alarms (spec 0.43) —
   ENSO is *necessary but not sufficient*. This is the clearest demonstration

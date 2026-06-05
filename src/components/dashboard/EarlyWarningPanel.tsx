@@ -16,7 +16,8 @@ interface EWData {
   recommendedAction: string;
   channels: { ecological: Channel; genomic: Channel; event: Channel };
   fusion: string;
-  integrity: { algorithm: string; digest: string };
+  integrity: { algorithm: string; digest: string; seq?: number | null; chainHash?: string | null };
+  signature?: { algorithm: string; keyId?: string; value?: string; signed?: boolean };
   generated: string;
   note: string;
 }
@@ -103,10 +104,18 @@ export function EarlyWarningPanel({ virusId }: { virusId: string }) {
       <div className="mt-3 flex items-start gap-1.5 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
         <ShieldCheck className="h-3.5 w-3.5 text-green-600 shrink-0 mt-0.5" />
         <p className="text-[10px] text-gray-500 break-all">
-          <span className="font-semibold text-gray-600">Verifiable forecast digest (SHA-256):</span>{' '}
+          <span className="font-semibold text-gray-600">Verifiable forecast (SHA-256):</span>{' '}
           <span className="font-mono">{data.integrity.digest.slice(0, 32)}…</span>
-          <br />Each prediction is hashed (CAP-format) — the seed of a tamper-evident,
-          Merkle-anchored prediction log for forecast accountability.
+          {data.integrity.seq != null && (
+            <span className="text-gray-400"> · chain #{data.integrity.seq}</span>
+          )}
+          {data.signature?.value && (
+            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-green-100 px-1.5 py-0.5 text-[9px] font-bold text-green-700">
+              Ed25519 signed
+            </span>
+          )}
+          <br />Each prediction is hashed (CAP-format), Ed25519-signed, and appended to a
+          tamper-evident hash-chained log. Verify via <span className="font-mono">/api/earlywarning/pubkey</span>.
         </p>
       </div>
 
