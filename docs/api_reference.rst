@@ -490,6 +490,133 @@ a given virus. Returns up to 20 recent alerts sorted newest-first.
 
 ----
 
+GET /api/viruses/:id/divisions
+-------------------------------
+
+Returns sub-national (admin-1 / province) aggregation from the Nextstrain-style
+``division`` field, optionally restricted to a country. Powers the province maps.
+
+**URL**::
+
+   GET /api/viruses/{id}/divisions?country={substring}
+
+**Query parameters**
+
+.. list-table::
+   :widths: 15 15 70
+   :header-rows: 1
+
+   * - Parameter
+     - Type
+     - Description
+   * - ``country``
+     - string
+     - *(optional)* case-insensitive substring to filter records by country
+
+**Response**
+
+.. code-block:: javascript
+
+   {
+     "id": "ebola",
+     "country": "congo",
+     "total": 1240,
+     "withDivision": 90,
+     "coverage": 7,                 // % of records carrying province metadata
+     "divisions": {
+       "Kasai":      { "count": 51, "genotypes": ["EBOV (Zaire)"] },
+       "Nord Kivu":  { "count": 13, "genotypes": ["EBOV (Zaire)"] }
+     }
+   }
+
+Continent-level values (``Africa``, ``Asia`` …) and flagged contaminant records
+(``excluded: true``) are excluded. **Cache:** ``s-maxage=300``.
+
+----
+
+GET /api/ecorisk
+----------------
+
+Returns the **EcoRisk** ecological signal panel for a pathogen: ENSO/ONI, Indian
+Ocean Dipole, NDVI, rainfall anomaly, soil moisture, sea-surface temperature,
+forest loss, and a composite risk score with a narrative.
+
+**URL**::
+
+   GET /api/ecorisk?virus={id}
+
+**Response (abridged)**
+
+.. code-block:: javascript
+
+   {
+     "virus": "hantavirus",
+     "riskScore": 72,
+     "riskLevel": "ELEVATED",
+     "narrative": "El Niño lag active …",
+     "drivers": { "enso": true, "iod": false, "ndvi": false, "conflict": false, ... },
+     "enso": {
+       "currentOni": -0.37, "currentPhase": "neutral", "recentMax": 1.92,
+       "calibration": { "lagYears": 2, "threshold": 1.5,
+                        "note": "Pathogen-calibrated: ENSO over 2-yr lag, alarm ONI≥1.5" }
+     },
+     "rainfall": { "months": [ ... ] },
+     "sst":  { "basin": "Eastern Pacific (NINO1+2)", "value": 1.81, "phase": "warm (El Niño)" },
+     "ndvi": { "value": 0.37, "level": "low", "source": "NASA MODIS MOD13Q1 (ORNL DAAC)" },
+     "climate": { "temperature": 7.4, "humidity": 73, "soilMoisture": 0.137 },
+     "forest": { "countries": [ ... ] }
+   }
+
+Per-pathogen ENSO lag and threshold are calibrated by the SENTINEL-Φ hindcast
+(see :doc:`early_warning`). Sources: NOAA, NASA MODIS, Open-Meteo, World Bank.
+**Cache:** ``s-maxage=21600`` (6 h).
+
+----
+
+GET /api/earlywarning
+---------------------
+
+Returns the **SENTINEL-Φ** composite early-warning assessment for a pathogen —
+the fused Spillover/Amplification Index (SAI), alert tier, the three signal
+channels, a CAP-format alert object, and a SHA-256 integrity digest.
+
+**URL**::
+
+   GET /api/earlywarning?virus={id}
+
+**Response (abridged)**
+
+.. code-block:: javascript
+
+   {
+     "algorithm": "SENTINEL-Φ (pilot)",
+     "virus": "avianflu", "sai": 84, "tier": "WARNING",
+     "channels": {
+       "ecological": { "value": 72, "elevated": true,  "detail": "..." },   // E — driver
+       "genomic":    { "value": 100,"elevated": true,  "detail": "..." },   // G — response
+       "event":      { "value": 25, "elevated": true,  "detail": "1 alert in last 90 days" } // N
+     },
+     "fusion": "SAI = 0.45·E + 0.40·G + 0.15·N (N recency-gated; never alerts alone)",
+     "cap": { /* OASIS Common Alerting Protocol object */ },
+     "integrity": { "algorithm": "SHA-256", "digest": "…", "seq": 12, "chainHash": "…" }
+   }
+
+**Related endpoints**
+
+* ``GET /api/earlywarning/log?virus={id}`` — the tamper-evident, hash-chained
+  prediction log; returns ``verified`` (chain integrity), ``head`` (Merkle-root
+  analogue) and the records.
+* ``POST /api/earlywarning/subscribe`` — register an email/SMS alert subscription
+  (body: ``{channel, address, virus, minTier}``). Delivery is dry-run by default.
+
+.. warning::
+
+   SENTINEL-Φ is a research pilot and **not** a substitute for official
+   public-health alerts from WHO, PAHO, or national authorities. See
+   :doc:`early_warning` for the methodology and calibration.
+
+----
+
 Rate Limits & Fair Use
 -----------------------
 
