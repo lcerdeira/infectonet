@@ -37,8 +37,8 @@ export function Footer() {
                 {t('legal_title')}
               </h3>
               <ul className="space-y-2 text-sm text-gray-600">
-                <li><Link href="/data-policy" className="hover:text-blue-600">Data &amp; Privacy Policy</Link></li>
-                <li><Link href="/data-policy" className="hover:text-blue-600">GDPR Compliance</Link></li>
+                <li><Link href="/data-policy" className="hover:text-blue-600">Data Sources &amp; Policy</Link></li>
+                <li><Link href="/privacy" className="hover:text-blue-600">Privacy Notice</Link></li>
                 <li>
                   <a href="https://github.com/lcerdeira/infectonet" target="_blank" rel="noopener noreferrer"
                     className="hover:text-blue-600">Open Source (GitHub)</a>

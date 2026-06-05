@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${SITE_URL}/${LOCALE}/about`,      changeFrequency: 'monthly', priority: 0.6, lastModified: now },
     { url: `${SITE_URL}/${LOCALE}/documentation`, changeFrequency: 'monthly', priority: 0.7, lastModified: now },
     { url: `${SITE_URL}/${LOCALE}/data-policy`, changeFrequency: 'monthly', priority: 0.5, lastModified: now },
+    { url: `${SITE_URL}/${LOCALE}/privacy`,     changeFrequency: 'monthly', priority: 0.4, lastModified: now },
   ];
 
   const virusPages: MetadataRoute.Sitemap = VIRUSES.map(v => ({

@@ -50,6 +50,12 @@ building on the `AMRnet <https://www.amrnet.org>`_ platform.
    data_import
 
 .. toctree::
+   :maxdepth: 2
+   :caption: Methods
+
+   early_warning
+
+.. toctree::
    :maxdepth: 1
    :caption: Project
 

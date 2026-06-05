@@ -9,6 +9,7 @@ import { SampleTimeline } from './SampleTimeline';
 import { VirusInsights } from './VirusInsights';
 import { OutbreakMonitor } from './OutbreakMonitor';
 import { EcoRiskPanel } from './EcoRiskPanel';
+import { EarlyWarningPanel } from './EarlyWarningPanel';
 import { VectorHostMap } from './VectorHostMap';
 import { VECTOR_HOST_MAPS } from '@/lib/vectorHostMaps';
 import { Loader2, Database, Radio, Leaf, Bug } from 'lucide-react';
@@ -226,12 +227,17 @@ export function VirusDashboard({ virusId }: Props) {
 
       {/* ── EcoRisk tab ── */}
       {tab === 'ecorisk' && (
-        <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-2 mb-5">
-            <Leaf className="h-5 w-5 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Ecological Risk Intelligence</h2>
+        <div className="space-y-6">
+          {/* SENTINEL-Φ early-warning index (fuses ecological + genomic + event signals) */}
+          <EarlyWarningPanel key={`ew-${virusId}`} virusId={virusId} />
+
+          <div className="rounded-2xl border border-green-100 bg-white p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <Leaf className="h-5 w-5 text-green-600" />
+              <h2 className="text-lg font-semibold text-gray-900">Ecological Risk Intelligence</h2>
+            </div>
+            <EcoRiskPanel key={virusId} virusId={virusId} />
           </div>
-          <EcoRiskPanel key={virusId} virusId={virusId} />
         </div>
       )}
 
