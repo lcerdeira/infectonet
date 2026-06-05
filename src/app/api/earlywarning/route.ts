@@ -41,7 +41,10 @@ export async function GET(req: NextRequest) {
   if (!VIRUS_MAP.has(virus)) {
     return NextResponse.json({ error: `Unknown virus: ${virus}` }, { status: 404 });
   }
-  const origin = req.nextUrl.origin;
+  // Internal API composition: call our own routes over loopback to avoid
+  // hairpin-NAT failures when the server fetches its own public hostname.
+  const origin = process.env.INTERNAL_API_BASE
+    || `http://127.0.0.1:${process.env.PORT || 3000}`;
   const meta = VIRUS_MAP.get(virus)!;
 
   // ── Fetch the three signal classes in parallel ─────────────────────────────
