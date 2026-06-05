@@ -92,28 +92,46 @@ export async function GET(req: NextRequest) {
   }
 
   // ── Channel N — event corroboration (live outbreak alerts) ─────────────────
-  const alertCount = news?.items?.length ?? 0;
+  // RECENCY-GATED: the WHO DON API returns historical alerts too, so we count
+  // only items published in the last 90 days as *active* corroboration. This is
+  // the key specificity fix — stale 2024 alerts no longer inflate today's score.
+  const NOW = Date.now();
+  const RECENT_MS = 90 * 24 * 3600 * 1000;
+  const items = (news?.items ?? []) as { pubDate?: string }[];
+  let recentCount = 0;
+  for (const it of items) {
+    const t = it.pubDate ? Date.parse(it.pubDate) : NaN;
+    if (!isNaN(t) && NOW - t <= RECENT_MS) recentCount++;
+  }
   const N: ChannelScore = {
-    value: clamp(alertCount * 20),
-    elevated: alertCount >= 2,
-    detail: alertCount > 0
-      ? `${alertCount} live WHO/PAHO/WOAH outbreak alert(s)`
-      : 'No current outbreak alerts',
+    value: clamp(recentCount * 25),
+    elevated: recentCount >= 1,           // ≥1 alert in the last 90 days
+    detail: recentCount > 0
+      ? `${recentCount} outbreak alert(s) in the last 90 days (of ${items.length} total)`
+      : (items.length > 0
+          ? `${items.length} alert(s) but none in the last 90 days (historical only)`
+          : 'No outbreak alerts'),
   };
 
   // ── Fusion — Spillover/Amplification Index (SAI) ───────────────────────────
-  // Transparent weighted fusion (pilot). E is the validated long-lead driver,
-  // G the response, N corroboration. N is capped so it cannot dominate.
-  const sai = clamp(Math.round(0.50 * E.value + 0.30 * G.value + 0.20 * N.value));
+  // E = ecological driver (validated long-lead), G = genomic response (the most
+  // discriminating real-time signal), N = recency-gated corroboration (down-
+  // weighted so it cannot dominate or alert on its own).
+  const sai = clamp(Math.round(0.45 * E.value + 0.40 * G.value + 0.15 * N.value));
 
-  // ── Tiered alert logic (N never alerts alone) ──────────────────────────────
-  const elevatedChannels = [E.elevated, G.elevated].filter(Boolean).length;
+  // ── Tiered alert logic — specificity-favouring (calibrated) ────────────────
+  // N never triggers alone. WARNING requires the genomic response OR a very
+  // strong ecological driver, each WITH recent event corroboration.
+  const eHigh = E.value >= 80;                    // very strong ecological forcing
+  const elevatedQuant = [E.elevated, G.elevated].filter(Boolean).length;
   let tier: 'NONE' | 'WATCH' | 'ADVISORY' | 'WARNING' = 'NONE';
-  if (E.value >= 70 && (N.elevated || G.elevated)) tier = 'WARNING';
-  else if (elevatedChannels >= 2) tier = 'ADVISORY';
-  else if (E.elevated || G.elevated) tier = 'WATCH';
-  // Escalate one level if news corroborates an already-elevated quantitative channel
-  if (tier === 'WATCH' && N.elevated && elevatedChannels >= 1) tier = 'ADVISORY';
+  if ((G.elevated && (E.elevated || N.elevated)) || (eHigh && N.elevated)) {
+    tier = 'WARNING';                             // genomic surge corroborated, or strong driver + recent alert
+  } else if (elevatedQuant >= 2 || (E.elevated && N.elevated)) {
+    tier = 'ADVISORY';                            // ≥2 quantitative channels, or driver + recent corroboration
+  } else if (E.elevated || G.elevated) {
+    tier = 'WATCH';                               // one quantitative channel elevated
+  }
 
   const tierMeta = {
     NONE:     { color: '#2ca02c', label: 'No elevated signal',  action: 'Routine surveillance' },
@@ -163,7 +181,7 @@ export async function GET(req: NextRequest) {
       genomic:    G,   // G — response
       event:      N,   // N — corroboration (never alerts alone)
     },
-    fusion: 'SAI = 0.50·E + 0.30·G + 0.20·N (pilot weights; N capped, never alerts alone)',
+    fusion: 'SAI = 0.45·E + 0.40·G + 0.15·N (N recency-gated to last 90 days; never alerts alone)',
     cap,
     integrity: {
       algorithm: 'SHA-256', digest,
