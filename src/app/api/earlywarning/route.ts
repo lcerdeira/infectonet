@@ -29,6 +29,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createHash } from 'crypto';
 import { VIRUS_MAP } from '@/lib/viruses';
+import { appendPrediction } from '@/lib/predictionLog';
 
 interface ChannelScore { value: number; elevated: boolean; detail: string; }
 
@@ -145,6 +146,9 @@ export async function GET(req: NextRequest) {
   // ── Tamper-evident integrity digest (seed of a hash-chained log) ───────────
   const digest = createHash('sha256').update(JSON.stringify(cap)).digest('hex');
 
+  // Append to the persistent Merkle-style prediction log (idempotent per day)
+  const logged = await appendPrediction(virus, sai, tier, cap).catch(() => null);
+
   return NextResponse.json({
     algorithm: 'SENTINEL-Φ (pilot)',
     virus,
@@ -161,7 +165,12 @@ export async function GET(req: NextRequest) {
     },
     fusion: 'SAI = 0.50·E + 0.30·G + 0.20·N (pilot weights; N capped, never alerts alone)',
     cap,
-    integrity: { algorithm: 'SHA-256', digest },
+    integrity: {
+      algorithm: 'SHA-256', digest,
+      logged: !!logged,
+      seq: logged?.seq ?? null,
+      chainHash: logged?.hash ?? null,
+    },
     generated: sent,
     note: 'Pilot research instrument — not a substitute for official public-health alerts.',
   }, { headers: { 'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=600' } });
