@@ -75,7 +75,7 @@ export function ProvinceBubbleMap({ virusId }: { virusId: string }) {
   const maxCount = Math.max(...points.map(p => p.count));
   const trace = {
     type: 'scattergeo' as const,
-    mode: 'markers+text' as const,
+    mode: 'text+markers' as const,
     lon: points.map(p => p.lon),
     lat: points.map(p => p.lat),
     text: points.map(p => p.count >= maxCount * 0.15 ? p.name : ''),
