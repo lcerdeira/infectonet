@@ -21,6 +21,25 @@ const ENSO_DRIVEN     = new Set(['hantavirus','riftvalley','dengue','zika','chik
 const CONFLICT_DRIVEN = new Set(['ebola','marburg','lassa','crimean','mpox']);
 const DUAL_DRIVEN     = new Set(['nipah']);
 
+// ── Per-pathogen ENSO calibration (from scripts/calibrate_sentinel.py) ─────────
+//   lagYears : how far back the El Niño signal is read (rolling window length)
+//   thr      : calibrated ONI alarm threshold (best by MCC / sensitivity)
+// Hantavirus: 12–18 mo lag, ONI≥1.5. Dengue & arboviruses: same/next season,
+// ONI≥1.1. RVF: most sensitive (ONI≥0.9) — necessary-but-not-sufficient, so
+// specificity comes from NDVI + soil + IOD fusion downstream.
+interface EnsoCal { lagYears: number; thr: number }
+const ENSO_CAL: Record<string, EnsoCal> = {
+  hantavirus:  { lagYears: 2, thr: 1.5 },
+  dengue:      { lagYears: 1, thr: 1.1 },
+  zika:        { lagYears: 1, thr: 1.1 },
+  chikungunya: { lagYears: 1, thr: 1.1 },
+  oropouche:   { lagYears: 1, thr: 1.1 },
+  yellowfever: { lagYears: 1, thr: 1.1 },
+  westnile:    { lagYears: 1, thr: 1.1 },
+  riftvalley:  { lagYears: 1, thr: 0.9 },
+};
+const ENSO_CAL_DEFAULT: EnsoCal = { lagYears: 2, thr: 1.0 };
+
 // ── Per-virus geographic config ───────────────────────────────────────────────
 interface VirusGeo {
   lat: number; lon: number;          // endemic region centroid
@@ -424,11 +443,14 @@ function forestRiskBonus(forest: { change5yrPct: number }[] | null | undefined, 
   return 0;
 }
 
-function ensoRiskBase(recentMax: number): number {
-  if (recentMax >= 2.0) return 90;
-  if (recentMax >= 1.5) return 72;
-  if (recentMax >= 1.0) return 55;
-  if (recentMax >= 0.5) return 38;
+// Pathogen-calibrated ENSO base score: graded relative to the pathogen's
+// calibrated threshold `thr`, so dengue/RVF (lower thr) fire earlier than
+// hantavirus, exactly as the hindcast calibration found.
+function ensoRiskBase(laggedMax: number, thr: number): number {
+  if (laggedMax >= thr + 0.5) return 90;
+  if (laggedMax >= thr)        return 72;
+  if (laggedMax >= thr - 0.4)  return 55;
+  if (laggedMax >= thr - 0.9)  return 38;
   return 20;
 }
 
@@ -536,7 +558,9 @@ export async function GET(req: NextRequest) {
   const latest       = oniSeries.at(-1);
   const currentOni   = latest?.oni ?? 0;
   const currentPhase = oniPhase(currentOni);
-  const recentMax    = Math.max(...oniSeries.filter(r => r.year >= currentYear - 2).map(r => r.oni), 0);
+  // Pathogen-calibrated ENSO lag window (hantavirus 2 yr; dengue/RVF 1 yr)
+  const cal          = ENSO_CAL[virus] ?? ENSO_CAL_DEFAULT;
+  const recentMax    = Math.max(...oniSeries.filter(r => r.year >= currentYear - cal.lagYears).map(r => r.oni), 0);
 
   // ── SST ───────────────────────────────────────────────────────────────────
   const sstLatest = sstRows.at(-1);
@@ -579,7 +603,7 @@ export async function GET(req: NextRequest) {
 
   // ── Risk score ────────────────────────────────────────────────────────────
   let riskScore = 20;
-  if (useEnso)     riskScore = Math.max(riskScore, ensoRiskBase(recentMax));
+  if (useEnso)     riskScore = Math.max(riskScore, ensoRiskBase(recentMax, cal.thr));
   if (useConflict) riskScore = Math.max(riskScore, CONFLICT_RISK[virus] ?? 50);
   riskScore = Math.min(100, riskScore
     + rainfallRiskBonus(rainfallData, virus)
@@ -607,7 +631,15 @@ export async function GET(req: NextRequest) {
       latestYear:    latest?.year   ?? null,
       annualSeries:  annualOni,
       recentMax:     parseFloat(recentMax.toFixed(2)),
-      lagNote: useEnso ? 'ENSO signal has a 12–18 month lag before affecting reservoir/vector populations' : null,
+      calibration: useEnso ? {
+        lagYears:  cal.lagYears,
+        threshold: cal.thr,
+        note: `Pathogen-calibrated: ENSO read over ${cal.lagYears}-yr lag, alarm at ONI≥${cal.thr} `
+            + `(from SENTINEL-Φ hindcast). Peak ONI in window: ${recentMax >= 0 ? '+' : ''}${recentMax.toFixed(2)}.`,
+      } : null,
+      lagNote: useEnso
+        ? `ENSO signal read at a ${cal.lagYears * 12}-month lag for this pathogen (calibrated).`
+        : null,
     },
     rainfall: rainfallData ? {
       region: geo?.regionName ?? null,
