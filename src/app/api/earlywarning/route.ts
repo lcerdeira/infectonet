@@ -163,9 +163,12 @@ export async function GET(req: NextRequest) {
   };
 
   // ── Tamper-evident integrity digest + Ed25519 signature ────────────────────
+  // Sign the SHA-256 DIGEST (a stable hex string), not the raw JSON: JSON
+  // serialisation is not canonical, so signing the digest makes the signature
+  // independently reproducible by any consumer (verify Ed25519 over the hex).
   const capJson = JSON.stringify(cap);
   const digest = createHash('sha256').update(capJson).digest('hex');
-  const signature = signPayload(capJson);   // base64 Ed25519, or null if no key
+  const signature = signPayload(digest);   // base64 Ed25519 over the digest hex
 
   // Append to the persistent Merkle-style prediction log (idempotent per day)
   const logged = await appendPrediction(virus, sai, tier, cap).catch(() => null);
@@ -196,7 +199,9 @@ export async function GET(req: NextRequest) {
       algorithm: 'Ed25519',
       keyId: KEY_ID,
       value: signature,
-      verify: 'GET /api/earlywarning/pubkey — verify Ed25519(value) over JSON.stringify(cap)',
+      signs: 'integrity.digest',
+      verify: 'Ed25519-verify `value` (base64) over the integrity.digest hex string, '
+            + 'using the public key from GET /api/earlywarning/pubkey.',
     } : { algorithm: 'Ed25519', signed: false, note: 'signing key not configured on this instance' },
     generated: sent,
     note: 'Pilot research instrument — not a substitute for official public-health alerts.',
