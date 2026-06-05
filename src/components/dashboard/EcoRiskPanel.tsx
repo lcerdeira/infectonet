@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, TrendingUp, Zap, Shield, RefreshCw, Info,
-         CloudRain, TreePine, Thermometer, Waves, Droplets } from 'lucide-react';
+         CloudRain, TreePine, Thermometer, Waves, Droplets, Sprout } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 
 interface AnnualOni {
@@ -46,7 +46,7 @@ interface EcoRiskData {
   narrative:  string;
   drivers: {
     enso: boolean; conflict: boolean; rainfall: boolean; forest: boolean;
-    sst: boolean; iod: boolean; climate: boolean;
+    sst: boolean; iod: boolean; climate: boolean; ndvi: boolean;
   };
   enso: {
     currentOni: number; currentPhase: string;
@@ -58,6 +58,7 @@ interface EcoRiskData {
   } | null;
   sst:    SSTInfo | null;
   iod:    { value: number; phase: string; month: string | null; color: string; note: string; source: string } | null;
+  ndvi:   { value: number; date: string; level: string; color: string; note: string; source: string } | null;
   climate: {
     temperature: number | null; humidity: number | null; soilMoisture: number | null;
     periodStart: string; humidityNote: string | null; source: string;
@@ -357,6 +358,39 @@ export function EcoRiskPanel({ virusId }: Props) {
                 strong positive IOD has historically preceded Rift Valley Fever and East-African
                 arbovirus outbreaks via flood-linked vector breeding.</p>
               <p className="text-[10px] text-gray-400 mt-2 italic">{data.iod.source}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── NDVI vegetation / vector habitat ─────────────────────────────── */}
+      {data.ndvi && (
+        <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3">
+            <Sprout className="h-4 w-4 text-green-600" />
+            <h3 className="text-sm font-semibold text-gray-800">Vegetation Index (NDVI)</h3>
+            <span className="text-[10px] text-gray-400 ml-auto">{data.ndvi.date}</span>
+          </div>
+          <div className="flex items-start gap-4">
+            <div className="rounded-xl border px-4 py-3 text-center min-w-[110px]"
+                 style={{ borderColor: `${data.ndvi.color}40`, backgroundColor: `${data.ndvi.color}10` }}>
+              <p className="text-[10px] text-gray-500 font-medium">NDVI</p>
+              <p className="text-2xl font-bold mt-0.5" style={{ color: data.ndvi.color }}>
+                {data.ndvi.value.toFixed(2)}
+              </p>
+              <p className="text-[10px] capitalize mt-0.5" style={{ color: data.ndvi.color }}>
+                {data.ndvi.level} cover
+              </p>
+            </div>
+            <div className="flex-1">
+              {/* NDVI scale bar */}
+              <div className="h-2.5 w-full rounded-full mb-2"
+                   style={{ background: 'linear-gradient(to right,#a16207,#ca8a04,#65a30d,#15803d)' }} />
+              <div className="flex justify-between text-[9px] text-gray-400 mb-2">
+                <span>0 · bare</span><span>0.5</span><span>1.0 · dense</span>
+              </div>
+              <p className="text-xs text-gray-500 leading-relaxed">{data.ndvi.note}</p>
+              <p className="text-[10px] text-gray-400 mt-1 italic">{data.ndvi.source}</p>
             </div>
           </div>
         </div>

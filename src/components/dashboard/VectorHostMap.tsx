@@ -14,18 +14,32 @@ import { Info, Move, Eye, EyeOff } from 'lucide-react';
 import { SafePlot } from './SafePlot';
 import { VECTOR_HOST_MAPS } from '@/lib/vectorHostMaps';
 
-type LayerKey = 'hosts' | 'outbreaks';
+type LayerKey = 'hosts' | 'outbreaks' | 'flyways';
 
 export function VectorHostMap({ virusId }: { virusId: string }) {
   const cfg = VECTOR_HOST_MAPS[virusId];
 
   const [active, setActive] = useState<Record<LayerKey, boolean>>({
-    hosts: true, outbreaks: true,
+    hosts: true, outbreaks: true, flyways: true,
   });
   const toggle = (k: LayerKey) => setActive(a => ({ ...a, [k]: !a[k] }));
 
   const traces = useMemo(() => {
     if (!cfg) return [];
+
+    // Migratory flyways — dashed polylines (drawn first, behind markers)
+    const flywayTraces = (active.flyways && cfg.flyways?.length)
+      ? cfg.flyways.map(f => ({
+          type: 'scattergeo' as const,
+          mode: 'lines' as const,
+          name: f.name,
+          lon: f.lon,
+          lat: f.lat,
+          line: { color: 'rgba(8,145,178,0.55)', width: 1.5, dash: 'dot' as const },
+          hoverinfo: 'name' as const,
+          showlegend: false,
+        }))
+      : [];
 
     // Host / vector hotspots — emoji glyph + halo
     const hostTrace = (active.hosts && cfg.hotspots.length) ? {
@@ -72,7 +86,7 @@ export function VectorHostMap({ virusId }: { virusId: string }) {
       hovertemplate: '%{customdata}<extra></extra>',
     } : null;
 
-    return [hostTrace, outbreakTrace].filter((t): t is NonNullable<typeof t> => t != null);
+    return [...flywayTraces, hostTrace, outbreakTrace].filter((t): t is NonNullable<typeof t> => t != null);
   }, [cfg, active]);
 
   if (!cfg) return null;
@@ -103,6 +117,7 @@ export function VectorHostMap({ virusId }: { virusId: string }) {
       <div className="mb-3 flex flex-wrap gap-1.5">
         {([
           { key: 'hosts' as const, label: cfg.layerLabel, color: cfg.color, show: true },
+          { key: 'flyways' as const, label: 'Migratory flyways', color: '#0891b2', show: !!cfg.flyways?.length },
           { key: 'outbreaks' as const, label: 'Notable outbreaks', color: '#111827', show: !!cfg.outbreaks?.length },
         ]).filter(l => l.show).map(l => {
           const on = active[l.key];

@@ -30,6 +30,13 @@ export interface VHOutbreak {
   note?: string;
 }
 
+/** Migratory flyway — a named polyline of (lon, lat) waypoints */
+export interface Flyway {
+  name: string;
+  lon: number[];
+  lat: number[];
+}
+
 export interface VectorHostConfig {
   /** Display label for the host/vector layer */
   layerLabel: string;
@@ -43,6 +50,8 @@ export interface VectorHostConfig {
   blurb: string;
   hotspots: HostHotspot[];
   outbreaks?: VHOutbreak[];
+  /** Optional migratory flyway overlays (e.g. for avian influenza) */
+  flyways?: Flyway[];
   /** Map view */
   bounds: { lon: [number, number]; lat: [number, number] };
   center: { lon: number; lat: number };
@@ -91,6 +100,15 @@ export const VECTOR_HOST_MAPS: Record<string, VectorHostConfig> = {
       { name: 'Antarctica',           species: '🐧 Penguins/seabirds', lon: -60.0, lat: -63.0, note: 'HPAI reached Antarctic wildlife 2023-24 (first ever)' },
       { name: 'Svalbard (Arctic)',    species: '🐻‍❄️ Polar bear, walrus', lon: 16.0, lat: 78.0, note: 'H5N5 in polar bear & walrus 2026 (first ever, NVI)' },
       { name: 'South America coast',  species: '🦭 Sea lions, seabirds', lon: -75.0, lat: -15.0, note: 'Mass marine-mammal die-offs Peru/Chile/Argentina' },
+    ],
+    // Major global migratory bird flyways — the highways along which HPAI spreads,
+    // including the routes that carried H5N1/H5N5 to the Arctic (Svalbard) and Antarctica.
+    flyways: [
+      { name: 'East Atlantic (→ Svalbard/Arctic)', lon: [ -10,  -5,   5,  15,  16 ], lat: [ 10,  35,  55,  70,  78 ] },
+      { name: 'Black Sea–Mediterranean',           lon: [  30,  28,  20,  10 ],       lat: [  -5,  20,  40,  48 ] },
+      { name: 'East Asian–Australasian',           lon: [ 150, 140, 120, 115, 100 ],  lat: [ -40, -10,  20,  40,  60 ] },
+      { name: 'Central Asian',                     lon: [  77,  70,  65,  60 ],       lat: [   8,  30,  48,  62 ] },
+      { name: 'Americas (→ Antarctica)',           lon: [ -90, -80, -70, -65, -60 ],  lat: [  45,  10, -20, -45, -63 ] },
     ],
     bounds: { lon: [-130, 150], lat: [-70, 82] },
     center: { lon: 20, lat: 25 },

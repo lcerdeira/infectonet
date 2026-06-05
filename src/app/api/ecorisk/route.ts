@@ -264,6 +264,45 @@ async function fetchClimate(lat: number, lon: number) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// 3c. NASA MODIS NDVI (ORNL DAAC REST API) — vegetation greenness
+//     Vector habitat proxy for mosquito/tick-borne viruses. Free, no API key.
+// ══════════════════════════════════════════════════════════════════════════════
+async function fetchNDVI(lat: number, lon: number) {
+  const now = new Date();
+  const doy = (d: Date) => {
+    const startY = Date.UTC(d.getUTCFullYear(), 0, 0);
+    return Math.floor((d.getTime() - startY) / 86400000);
+  };
+  const start = new Date(now); start.setUTCDate(now.getUTCDate() - 80);
+  const fmt = (d: Date) => `A${d.getUTCFullYear()}${String(doy(d)).padStart(3, '0')}`;
+
+  const url = `https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?latitude=${lat}&longitude=${lon}`
+    + `&startDate=${fmt(start)}&endDate=${fmt(now)}&band=250m_16_days_NDVI&kmAboveBelow=0&kmLeftRight=0`;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);  // ORNL can be slow — cap it
+  try {
+    const res = await fetch(url, {
+      signal: ctrl.signal,
+      next: { revalidate: 86400 },     // daily cache
+      headers: { 'User-Agent': 'InfectoNET/1.0', 'Accept': 'application/json' },
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const d = await res.json() as { subset?: { calendar_date: string; data: number[] }[] };
+    const sub = d.subset ?? [];
+    if (!sub.length) return null;
+    const last = sub[sub.length - 1];
+    const raw = last.data?.[0];
+    if (typeof raw !== 'number') return null;
+    return { value: Math.round(raw * 0.0001 * 1000) / 1000, date: last.calendar_date };
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // 3. Open-Meteo (ERA5 reanalysis) — Rainfall anomaly vs 30-yr baseline
 // ══════════════════════════════════════════════════════════════════════════════
 async function fetchRainfall(lat: number, lon: number, monthlyNormals: number[]) {
@@ -466,15 +505,21 @@ export async function GET(req: NextRequest) {
   const useIod = IOD_RELEVANT.has(virus);
   // Humidity matters most for respiratory viruses
   const RESP_HUMIDITY = new Set(['influenza','avianflu','rsv','covid19','measles']);
+  // NDVI (vegetation/vector habitat) matters for arthropod-borne viruses
+  const NDVI_RELEVANT = new Set(['dengue','zika','chikungunya','yellowfever','westnile','riftvalley','oropouche']);
+  const useNdvi = NDVI_RELEVANT.has(virus);
+  // Soil moisture is a flood/breeding signal for these
+  const SOIL_RELEVANT = new Set(['riftvalley','lassa','hantavirus','westnile','dengue']);
 
   // Parallel fetch — all sources simultaneously
-  const [oniSeries, sstRows, rainfallData, forestData, iodSeries, climate] = await Promise.all([
+  const [oniSeries, sstRows, rainfallData, forestData, iodSeries, climate, ndvi] = await Promise.all([
     fetchONI().catch(() => [] as Awaited<ReturnType<typeof fetchONI>>),
     fetchSST().catch(() => [] as Awaited<ReturnType<typeof fetchSST>>),
     geo ? fetchRainfall(geo.lat, geo.lon, geo.monthlyNormals).catch(() => null) : Promise.resolve(null),
     geo ? fetchForestLoss(geo.forestCountries).catch(() => null) : Promise.resolve(null),
     useIod ? fetchIOD().catch(() => [] as Awaited<ReturnType<typeof fetchIOD>>) : Promise.resolve([]),
     geo ? fetchClimate(geo.lat, geo.lon).catch(() => null) : Promise.resolve(null),
+    (geo && useNdvi) ? fetchNDVI(geo.lat, geo.lon).catch(() => null) : Promise.resolve(null),
   ]);
 
   // ── ENSO ──────────────────────────────────────────────────────────────────
@@ -514,6 +559,24 @@ export async function GET(req: NextRequest) {
     else if (climate.humidity < 55) humidityBonus = 5;
   }
 
+  // ── NDVI (vegetation / vector habitat) risk ─────────────────────────────────
+  let ndviBonus = 0;
+  if (ndvi && useNdvi) {
+    if (ndvi.value >= 0.6) ndviBonus = 10;       // lush vegetation → abundant vectors
+    else if (ndvi.value >= 0.4) ndviBonus = 5;
+  }
+
+  // ── Soil moisture (flood / breeding) risk ───────────────────────────────────
+  let soilBonus = 0;
+  const soil = climate?.soilMoisture;
+  if (soil !== null && soil !== undefined && SOIL_RELEVANT.has(virus)) {
+    if (virus === 'riftvalley' || virus === 'westnile' || virus === 'dengue') {
+      if (soil >= 0.35) soilBonus = 10;          // saturated soil → flood pools → mosquitoes
+      else if (soil >= 0.25) soilBonus = 5;
+    }
+    // Lassa/hantavirus: rodent dynamics — surfaced as context, no score change
+  }
+
   // ── Risk score ────────────────────────────────────────────────────────────
   let riskScore = 20;
   if (useEnso)     riskScore = Math.max(riskScore, ensoRiskBase(recentMax));
@@ -521,7 +584,7 @@ export async function GET(req: NextRequest) {
   riskScore = Math.min(100, riskScore
     + rainfallRiskBonus(rainfallData, virus)
     + forestRiskBonus(forestData, virus)
-    + iodBonus + humidityBonus);
+    + iodBonus + humidityBonus + ndviBonus + soilBonus);
 
   const riskLevel =
     riskScore >= 75 ? 'HIGH' : riskScore >= 50 ? 'ELEVATED' : riskScore >= 30 ? 'MODERATE' : 'LOW';
@@ -535,7 +598,7 @@ export async function GET(req: NextRequest) {
     virus, riskScore, riskLevel, riskColor, narrative,
     drivers: {
       enso: useEnso, conflict: useConflict, rainfall: !!geo, forest: !!geo,
-      sst: sstIndex !== 'none', iod: useIod, climate: !!geo,
+      sst: sstIndex !== 'none', iod: useIod, climate: !!geo, ndvi: useNdvi,
     },
     enso: {
       currentOni: parseFloat(currentOni.toFixed(2)),
@@ -573,6 +636,15 @@ export async function GET(req: NextRequest) {
            : 'Moderate humidity')
         : null,
       source: 'Open-Meteo ERA5 (last 30 days)',
+    } : null,
+    ndvi: (useNdvi && ndvi) ? {
+      value: ndvi.value,
+      date:  ndvi.date,
+      level: ndvi.value >= 0.6 ? 'high' : ndvi.value >= 0.4 ? 'moderate' : ndvi.value >= 0.2 ? 'low' : 'sparse',
+      color: ndvi.value >= 0.6 ? '#15803d' : ndvi.value >= 0.4 ? '#65a30d' : ndvi.value >= 0.2 ? '#ca8a04' : '#a16207',
+      note:  'Vegetation greenness (MODIS NDVI) is a proxy for arthropod-vector habitat. '
+           + 'Denser vegetation after rains supports larger mosquito/tick populations.',
+      source: 'NASA MODIS MOD13Q1 (ORNL DAAC)',
     } : null,
     forest: forestData ? {
       countries: forestData,
