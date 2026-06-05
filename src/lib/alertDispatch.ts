@@ -92,10 +92,20 @@ export async function dispatchAlert(opts: {
   // ── LIVE send (only reached when ALERTS_LIVE=true) ──────────────────────────
   const sent: DispatchResult['sent'] = [];
   try {
-    const { SESv2Client, SendEmailCommand } = await import('@aws-sdk/client-sesv2');
-    const { SNSClient, PublishCommand } = await import('@aws-sdk/client-sns');
-    const ses = new SESv2Client({ region: AWS_REGION });
-    const sns = new SNSClient({ region: AWS_REGION });
+    // Non-literal specifiers so the build never depends on the AWS SDK being
+    // installed. Install it only when enabling live mode:
+    //   npm i @aws-sdk/client-sesv2 @aws-sdk/client-sns
+    // Built at runtime to prevent the bundler constant-folding / resolving it
+    const sesPkg = ['@aws-sdk', 'client-sesv2'].join('/');
+    const snsPkg = ['@aws-sdk', 'client-sns'].join('/');
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    const sesMod: any = await import(/* webpackIgnore: true */ sesPkg);
+    const snsMod: any = await import(/* webpackIgnore: true */ snsPkg);
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+    const ses = new sesMod.SESv2Client({ region: AWS_REGION });
+    const sns = new snsMod.SNSClient({ region: AWS_REGION });
+    const SendEmailCommand = sesMod.SendEmailCommand;
+    const PublishCommand = snsMod.PublishCommand;
 
     for (const s of targets) {
       try {

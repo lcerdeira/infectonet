@@ -8,8 +8,6 @@
     "start": "next start"
   },
   "dependencies": {
-    "@aws-sdk/client-sesv2": "^3.700.0",
-    "@aws-sdk/client-sns": "^3.700.0",
     "@types/d3-geo": "^3.1.0",
     "@types/react-plotly.js": "^2.6.4",
     "clsx": "^2.1.1",
