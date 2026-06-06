@@ -1,25 +1,55 @@
-import { getTranslations } from 'next-intl/server';
 import type { Metadata } from 'next';
+import { BookOpen, ExternalLink } from 'lucide-react';
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: 'Documentation' };
 }
 
+const READTHEDOCS = 'https://infectonet.readthedocs.io';
+
 export default async function DocumentationPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-16">
       <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 mb-4">Documentation</h1>
-      <p className="text-gray-600 mb-10">API reference, data formats, and usage guides.</p>
+      <p className="text-gray-600 mb-8">API reference, data formats, and usage guides.</p>
+
+      {/* Full docs CTA → ReadTheDocs */}
+      <a
+        href={READTHEDOCS}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mb-12 flex items-center gap-4 rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition-all"
+      >
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-600">
+          <BookOpen className="h-6 w-6 text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-base font-semibold text-blue-900 flex items-center gap-1.5">
+            Full Documentation on ReadTheDocs <ExternalLink className="h-4 w-4" />
+          </p>
+          <p className="text-sm text-blue-700 mt-0.5">
+            Complete API reference (all endpoints incl. EcoRisk &amp; SENTINEL-Φ early warning),
+            pathogen catalogue, data sources, import guides, and the early-warning methodology.
+          </p>
+          <p className="text-xs text-blue-500 mt-1 font-mono">infectonet.readthedocs.io</p>
+        </div>
+      </a>
 
       {/* Public API */}
       <section className="mb-12">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Public API</h2>
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+          <h2 className="text-2xl font-bold text-gray-900">Public API — quick reference</h2>
+          <a href={`${READTHEDOCS}/en/latest/api_reference.html`} target="_blank" rel="noopener noreferrer"
+             className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+            Full API reference <ExternalLink className="h-3 w-3" />
+          </a>
+        </div>
         <div className="space-y-4">
           {[
             {
               method: 'GET',
               endpoint: '/api/viruses',
-              desc: 'Returns the catalogue of all 28 viruses with sequence counts.',
+              desc: 'Returns the catalogue of all 50+ pathogens with sequence counts.',
             },
             {
               method: 'GET',

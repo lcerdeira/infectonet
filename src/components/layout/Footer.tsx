@@ -31,6 +31,10 @@ export function Footer() {
                 <li><Link href="/about" className="hover:text-blue-600">About</Link></li>
                 <li><Link href="/reports" className="hover:text-blue-600">Reports</Link></li>
                 <li><Link href="/documentation" className="hover:text-blue-600">Documentation</Link></li>
+                <li>
+                  <a href="https://infectonet.readthedocs.io" target="_blank" rel="noopener noreferrer"
+                     className="hover:text-blue-600">Docs (ReadTheDocs) ↗</a>
+                </li>
               </ul>
             </div>
             <div>
