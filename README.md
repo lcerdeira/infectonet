@@ -7,7 +7,7 @@
 **Free, open-access genomic surveillance of 50+ viral pathogens worldwide.**
 Real-time outbreak monitoring · interactive maps · genotype trends · ecological risk intelligence · public API.
 
-🌐 **[infectonet.org](https://infectonet.org)** · 📖 **[Documentation](https://infectonet.readthedocs.io)** · 🔬 Built at [LSHTM](https://www.lshtm.ac.uk)
+🌐 **[infectonet.org](https://infectonet.org)** · 📖 **[Documentation](https://infectonet.readthedocs.io)** · 🔬 An independent open-science project
 
 ![Version](https://img.shields.io/badge/version-1.0-red)
 ![License](https://img.shields.io/badge/license-GPLv3-blue)
@@ -26,7 +26,8 @@ pathogens** — including **COVID-19 (SARS-CoV-2)**, **Ebola**, **dengue**, **av
 **mpox (monkeypox)**, **hantavirus**, **Marburg**, **Lassa fever**, **Nipah**, **RSV**, **measles**,
 **Zika**, **chikungunya** and more.
 
-It is developed at the **London School of Hygiene & Tropical Medicine (LSHTM)** and follows the
+It is an **independent, non-commercial open-science side project** maintained by an individual
+researcher — not affiliated with or endorsed by any institution — and follows the
 **FAIR** principles (Findable, Accessible, Interoperable, Reusable).
 
 > 🔗 **Live platform: [https://infectonet.org](https://infectonet.org)**
@@ -100,13 +101,13 @@ npm run dev                         # http://localhost:3000
 
 If you use InfectoNET in your research, please cite:
 
-> InfectoNET: a global viral genomic surveillance dashboard. London School of Hygiene &
-> Tropical Medicine, 2026. https://infectonet.org · DOI: [10.5281/zenodo.20222821](https://doi.org/10.5281/zenodo.20222821)
+> InfectoNET: a global viral genomic surveillance dashboard. 2026.
+> https://infectonet.org · DOI: [10.5281/zenodo.20222821](https://doi.org/10.5281/zenodo.20222821)
 
 ## License
 
-GPLv3 — see [LICENSE](LICENSE). Built on the [AMRnet](https://www.amrnet.org) platform.
+GPLv3 — see [LICENSE](LICENSE). Built on the open-source [AMRnet](https://www.amrnet.org) platform.
 
 ## Contact
 
-📧 [infectonet@gmail.com](mailto:infectonet@gmail.com) · 🏛️ London School of Hygiene & Tropical Medicine, Keppel Street, London WC1E 7HT
+📧 [infectonet@gmail.com](mailto:infectonet@gmail.com) — an independent open-science project.

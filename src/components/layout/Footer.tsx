@@ -55,7 +55,7 @@ export function Footer() {
 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <p className="text-xs text-gray-400">
-            © {new Date().getFullYear()}{' '}InfectoNET · London School of Hygiene &amp; Tropical Medicine
+            © {new Date().getFullYear()}{' '}InfectoNET · an independent open-science project
           </p>
           <p className="text-xs text-gray-400">
             Data sources: NCBI GenBank · GISAID · Nextstrain · WHO · PAHO · NOAA · CHIRPS · GFW ·{' '}

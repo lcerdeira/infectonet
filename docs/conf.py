@@ -2,7 +2,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
 project   = 'InfectoNET'
-copyright = '2024–2026, InfectoNET / LSHTM'
+copyright = '2024–2026, InfectoNET (independent open-science project)'
 author    = 'InfectoNET Team'
 release   = '0.1'
 

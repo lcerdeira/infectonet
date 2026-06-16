@@ -22,18 +22,18 @@ export const metadata: Metadata = {
     'InfectoNET is a free, open-access genomic surveillance platform tracking 50+ viral '
     + 'pathogens worldwide — COVID-19, Ebola, dengue, avian influenza (H5N1/H5N5), mpox, '
     + 'hantavirus and more. Real-time outbreak monitoring, interactive maps, genotype trends '
-    + 'and a public API, built at LSHTM.',
+    + 'and a public API. An independent open-science project.',
   applicationName: 'InfectoNET',
-  authors: [{ name: 'InfectoNET Team, LSHTM', url: SITE_URL }],
-  creator: 'London School of Hygiene & Tropical Medicine',
-  publisher: 'InfectoNET / LSHTM',
+  authors: [{ name: 'InfectoNET', url: SITE_URL }],
+  creator: 'InfectoNET',
+  publisher: 'InfectoNET',
   category: 'science',
   keywords: [
     'genomic surveillance', 'viral genomics', 'genomic epidemiology', 'outbreak monitoring',
     'infectious disease dashboard', 'pathogen surveillance', 'COVID-19 variants', 'Ebola',
     'avian influenza', 'H5N1', 'H5N5', 'dengue', 'mpox', 'monkeypox', 'hantavirus', 'Marburg',
     'Lassa fever', 'Nipah', 'RSV', 'influenza', 'one health', 'FAIR data', 'NCBI', 'GISAID',
-    'Nextstrain', 'phylogenetics', 'public health', 'epidemic intelligence', 'LSHTM',
+    'Nextstrain', 'phylogenetics', 'public health', 'epidemic intelligence',
     'disease outbreak news', 'WHO', 'genotype trends', 'virus tracker',
   ],
   alternates: {
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     title: 'InfectoNET — Global Viral Genomic Surveillance',
     description:
       'Free, open-access genomic surveillance of 50+ viral pathogens — COVID-19, Ebola, '
-      + 'dengue, avian flu, mpox and more. Built at LSHTM.',
+      + 'dengue, avian flu, mpox and more. An independent open-science project.',
     images: ['/infectonet-logo.png'],
   },
   robots: {
@@ -126,13 +126,7 @@ export default async function LocaleLayout({
         url: SITE_URL,
         logo: `${SITE_URL}/infectonet-logo.png`,
         description:
-          'Open-access genomic surveillance platform for viral pathogens, developed at the '
-          + 'London School of Hygiene & Tropical Medicine.',
-        parentOrganization: {
-          '@type': 'CollegeOrUniversity',
-          name: 'London School of Hygiene & Tropical Medicine',
-          url: 'https://www.lshtm.ac.uk',
-        },
+          'Independent, open-access genomic surveillance project for viral pathogens.',
         sameAs: ['https://github.com/lcerdeira/infectonet'],
       },
       {

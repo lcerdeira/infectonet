@@ -5,9 +5,10 @@ InfectoNET Documentation
 
 **InfectoNET** is an open-access genomic surveillance platform that aggregates,
 standardises, and visualises publicly available viral sequence data for over
-50 priority pathogens. It is developed at the
-`London School of Hygiene & Tropical Medicine (LSHTM) <https://www.lshtm.ac.uk>`_,
-building on the `AMRnet <https://www.amrnet.org>`_ platform.
+50 priority pathogens. It is an independent, non-commercial open-science project
+maintained by an individual researcher — not affiliated with or endorsed by any
+institution — building on the open-source
+`AMRnet <https://www.amrnet.org>`_ platform.
 
 .. raw:: html
 

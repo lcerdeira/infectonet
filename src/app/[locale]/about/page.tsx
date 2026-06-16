@@ -65,14 +65,13 @@ export default async function AboutPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('team_title')}</h2>
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
           <p className="text-gray-700">
-            InfectoNET builds on the{' '}
+            InfectoNET is an independent, non-commercial open-science side project maintained by an
+            individual researcher. It is not affiliated with, operated by, or endorsed by any
+            university, institution, or employer. It builds on the open-source{' '}
             <a href="https://www.amrnet.org" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
               AMRnet
             </a>{' '}
-            platform from the{' '}
-            <a href="https://www.lshtm.ac.uk" className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">
-              London School of Hygiene &amp; Tropical Medicine (LSHTM)
-            </a>.
+            platform.
           </p>
           <p className="mt-3 text-gray-700">
             Source code is available on{' '}

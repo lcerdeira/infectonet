@@ -113,8 +113,7 @@ const PRIORITY_ACTIONS = [
     level: 'High',
     color: 'text-orange-600 bg-orange-50 border-orange-200',
     items: [
-      'Publish a full Privacy Notice covering IP address/server log processing (UK GDPR Article 13).',
-      'Audit third-party scripts — if any analytics or CDN scripts set cookies, implement a consent mechanism per UK PECR.',
+      'Keep server request logging disabled so the project continues to process no personal data.',
       'Add EPI_SET IDs and originating laboratory credits to all GISAID-derived content.',
     ],
   },
@@ -141,12 +140,13 @@ export default function DataPolicyPage() {
           </h1>
         </div>
         <p className="text-gray-600 leading-relaxed max-w-3xl">
-          InfectoNET aggregates publicly available genomic surveillance data from multiple
-          international repositories. This page describes the licensing terms, attribution
-          requirements, and GDPR compliance framework for all data sources used by the platform.
+          InfectoNET is an independent, non-commercial open-science project that aggregates
+          publicly available genomic surveillance data from multiple international repositories.
+          This page describes the licensing terms, attribution requirements, and privacy practices
+          for all data sources used by the platform.
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          {['GDPR Compliant', 'UK GDPR', 'No User Tracking', 'No Login Required'].map(tag => (
+          {['Independent project', 'No personal data', 'No tracking', 'No login required'].map(tag => (
             <span key={tag}
               className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
               {tag}
@@ -223,42 +223,30 @@ export default function DataPolicyPage() {
         </div>
       </section>
 
-      {/* GDPR / Privacy */}
+      {/* Privacy */}
       <section>
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">Privacy &amp; GDPR Compliance</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-6">Privacy</h2>
         <div className="space-y-4">
           {[
             {
-              title: 'No personal data collected from users',
-              body: 'InfectoNET requires no login, registration, or form submission. The platform does not collect names, email addresses, or any information that directly identifies users.',
+              title: 'Independent project',
+              body: 'InfectoNET is an independent, non-commercial open-science side project maintained by an individual researcher. It is not affiliated with, operated by, or endorsed by any university, institution, or employer, and is not covered by any institutional policy or governance arrangement.',
             },
             {
-              title: 'Server access logs (IP addresses)',
-              body: 'Web server access logs — which include IP addresses — are retained for security monitoring purposes only. IP addresses constitute personal data under UK GDPR and EU GDPR. Logs are not used for analytics, profiling, or shared with third parties. Retention period: 30 days.',
+              title: 'No personal data collected',
+              body: 'InfectoNET requires no login, registration, or form submission, and does not collect names, email addresses, or any information that identifies users. It is designed to process no personal data.',
             },
             {
-              title: 'No third-party tracking',
-              body: 'InfectoNET does not embed third-party analytics scripts (e.g. Google Analytics), advertising pixels, or social media buttons that would result in cross-site tracking of users.',
+              title: 'No tracking or analytics',
+              body: 'InfectoNET embeds no third-party analytics scripts (e.g. Google Analytics), advertising pixels, or social-media buttons, and server request logging that would record IP addresses is disabled.',
             },
             {
               title: 'Cookies',
-              body: 'InfectoNET uses only technically necessary cookies required for the Next.js application to function. These do not track user behaviour across sessions. No consent is required under the UK Data (Use and Access) Act 2025 for strictly necessary cookies.',
+              body: 'InfectoNET uses only technically necessary cookies required for the web application to function. These do not track user behaviour across sessions and require no consent under PECR.',
             },
             {
-              title: 'Sequence data',
+              title: 'Sequence data contains no personal data',
               body: 'Genomic sequence records processed by InfectoNET contain no personal data. Sequences are identified by accession numbers and epidemiological metadata (country, collection date, organism). Individual patient identifiers are not present in public sequence databases.',
-            },
-            {
-              title: 'Legal basis (UK GDPR Article 6)',
-              body: 'Processing of server access logs is based on Article 6(1)(f) — legitimate interests (security of the platform). The scientific research exemption (Article 89) applies to InfectoNET\'s core activity of processing aggregate sequence metadata for public health surveillance purposes.',
-            },
-            {
-              title: 'Data controller',
-              body: 'InfectoNET is operated by the London School of Hygiene & Tropical Medicine (LSHTM), Keppel Street, London WC1E 7HT, United Kingdom. LSHTM is the data controller for any personal data processed via this platform.',
-            },
-            {
-              title: 'EU representative',
-              body: 'InfectoNET is accessible to EU users. LSHTM\'s EU GDPR Article 27 representative obligations are under review. Users in the EU may lodge complaints with their national supervisory authority.',
             },
           ].map(item => (
             <div key={item.title} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
@@ -294,7 +282,7 @@ export default function DataPolicyPage() {
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Contact</h2>
         <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm space-y-3 text-sm text-gray-700">
           <p>
-            For data licensing enquiries, attribution requests, or GDPR/privacy questions:
+            For data licensing enquiries, attribution requests, or privacy questions:
           </p>
           <p className="flex items-center gap-2">
             <Mail className="h-4 w-4 text-gray-400" />
@@ -302,15 +290,8 @@ export default function DataPolicyPage() {
               infectonet@gmail.com
             </a>
           </p>
-          <p className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-gray-400" />
-            LSHTM Data Protection Officer:{' '}
-            <a href="mailto:dpo@lshtm.ac.uk" className="text-blue-600 hover:underline">
-              dpo@lshtm.ac.uk
-            </a>
-          </p>
           <p className="text-gray-500 text-xs mt-2">
-            London School of Hygiene &amp; Tropical Medicine · Keppel Street · London WC1E 7HT · United Kingdom
+            InfectoNET — an independent open-science project.
           </p>
         </div>
       </section>
